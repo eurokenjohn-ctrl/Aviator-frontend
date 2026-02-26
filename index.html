@@ -350,13 +350,10 @@
       <input type="number" class="auto-input" id="autoCashoutVal" value="2.00" min="2.00" step="0.1">
     </div>
     
-    <div class="bet-amount" style="background: #111827; border: 1px solid #374151; padding: 5px; display: flex; align-items: center; border-radius: 8px; margin-bottom: 10px;">
-      <button class="bet-btn-adjust" onclick="adjustBet(-1)" style="background: #1f2937; border-radius: 6px; padding: 10px 15px; font-weight: bold;">-</button>
-      <div style="flex: 1; text-align: center; position: relative;">
-         <div style="font-size: 12px; color: #9ca3af; position: absolute; top: -15px; left: 0; right: 0; text-align: center;">Amount</div>
-         <input type="number" class="bet-input" id="betAmount" value="1" min="1" max="100000" style="width: 100%; padding: 10px 0; font-size: 24px;">
-      </div>
-      <button class="bet-btn-adjust" onclick="adjustBet(1)" style="background: #1f2937; border-radius: 6px; padding: 10px 15px; font-weight: bold;">+</button>
+    <div class="bet-amount">
+      <button class="bet-btn-adjust" onclick="adjustBet(-10)">-</button>
+      <input type="number" class="bet-input" id="betAmount" value="1" min="1" max="100000">
+      <button class="bet-btn-adjust" onclick="adjustBet(10)">+</button>
     </div>
 
     <div class="bet-presets">
@@ -568,7 +565,7 @@
 
   <!-- NOTIFICATIONS POPUP -->
   <div class="popup-overlay" id="notificationsPopup">
-    <div class="popup-content" style="background:#111827; border: 1px solid #374151; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); padding: 0; overflow: hidden; max-width: 450px; height: 80vh; display: flex; flex-direction: column;">
+    <div class="popup-content" style="background:#111827; border: 1px solid #374151; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); padding: 0; overflow: hidden; max-width: 450px;">
       <div style="background: linear-gradient(90deg, #1f2937, #111827); padding: 15px 20px; border-bottom: 1px solid #374151; display: flex; justify-content: space-between; align-items: center;">
         <h2 style="margin:0; font-size: 18px; color: #fff; display: flex; align-items: center; gap: 8px;">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
@@ -576,19 +573,9 @@
         </h2>
         <span class="popup-close" onclick="closeNotifications()" style="position: static; font-size: 24px; color: #9ca3af; transition: color 0.2s; cursor: pointer;">×</span>
       </div>
-      
-      <div style="padding: 10px 20px; background: #1f2937; border-bottom: 1px solid #374151; display: flex; gap: 10px;">
-        <select id="notifFilter" class="form-control" style="padding: 5px 10px; font-size: 14px;" onchange="filterNotifications()">
-          <option value="all">All Notifications</option>
-          <option value="unread">Unread</option>
-          <option value="read">Read</option>
-        </select>
+      <div id="notificationsList" style="max-height:350px; overflow-y:auto; padding: 15px 20px; background: #0b0f19;">
+        <p style="text-align:center; color:#9ca3af; font-size: 14px; padding: 20px 0;">No notifications yet</p>
       </div>
-
-      <div id="notificationsList" style="flex: 1; overflow-y:auto; padding: 15px 20px; background: #0b0f19;">
-        <p style="text-align:center; color:#9ca3af; font-size: 14px; padding: 20px 0;">Loading...</p>
-      </div>
-      
       <div style="padding: 15px 20px; border-top: 1px solid #374151; background: #1f2937;">
         <button class="btn-submit" onclick="markAllAsRead()" style="background:#3b82f6; margin-top:0; border-radius: 8px; font-weight: bold; transition: background 0.2s;">Mark All as Read</button>
       </div>
@@ -1578,66 +1565,22 @@
     async function openNotifications() {
        document.getElementById('notificationsPopup').style.display = 'flex';
        const notifications = await fetchNotifications();
-       renderNotifications(notifications, 'all');
-       document.getElementById('notifFilter').value = 'all';
-    }
-    
-    async function filterNotifications() {
-       const filter = document.getElementById('notifFilter').value;
-       const notifications = await fetchNotifications();
-       renderNotifications(notifications, filter);
-    }
-    
-    function renderNotifications(notifications, filter) {
        const list = document.getElementById('notificationsList');
-       list.innerHTML = '';
        
-       let filtered = notifications;
-       if (filter === 'unread') filtered = notifications.filter(n => !n.is_read);
-       if (filter === 'read') filtered = notifications.filter(n => n.is_read);
-       
-       if(filtered.length === 0) {
-          list.innerHTML = '<p style="text-align:center; color:#9ca3af; padding: 20px 0;">No notifications found</p>';
-          return;
+       if(notifications.length === 0) {
+          list.innerHTML = '<p style="text-align:center; color:#9ca3af;">No notifications yet</p>';
+       } else {
+          list.innerHTML = '';
+          notifications.forEach(n => {
+             const div = document.createElement('div');
+             div.className = 'notification-item' + (n.is_read ? '' : ' unread');
+             div.innerHTML = `
+               <div>${n.message}</div>
+               <div class="notification-time">${new Date(n.created_at).toLocaleString()}</div>
+             `;
+             list.appendChild(div);
+          });
        }
-       
-       filtered.forEach((n, idx) => {
-          const div = document.createElement('div');
-          div.className = 'notification-item' + (n.is_read ? '' : ' unread');
-          div.style.position = 'relative';
-          div.style.paddingRight = '40px';
-          
-          let actionBtn = '';
-          if (!n.is_read) {
-             actionBtn = `<button onclick="markSingleAsRead(${n.id}, event)" style="position: absolute; right: 10px; top: 10px; background: none; border: none; color: #3b82f6; cursor: pointer; font-size: 12px; font-weight: bold;">✓ Mark</button>`;
-          }
-
-          div.innerHTML = `
-            <div style="font-weight: bold; color: #fff; margin-bottom: 5px; font-size: 14px;">${filtered.length - idx}. Notification</div>
-            <div style="color: #d1d5db; line-height: 1.4;">${n.message}</div>
-            <div class="notification-time" style="color: #6b7280; font-size: 11px;">${new Date(n.created_at).toLocaleString()}</div>
-            ${actionBtn}
-          `;
-          list.appendChild(div);
-       });
-    }
-
-    async function markSingleAsRead(id, event) {
-      if(event) event.stopPropagation();
-      if(!currentUser) return;
-      try {
-        // Assume backend has an endpoint for marking a single notification as read
-        // If not, this might fail, but it's a standard pattern
-        await fetch(`${BACKEND_URL}/api/notifications/mark-single-read`, {
-          method: 'POST',
-          headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({phone: currentUser.phone, id: id})
-        });
-        filterNotifications(); // refresh the current view
-        fetchNotifications(); // refresh badge
-      } catch(e) {
-         console.log("Failed to mark single as read");
-      }
     }
     
     function closeNotifications() {
