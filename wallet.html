@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wallet - Swiftcrash</title>
+  <style>
+    body { background-color: #09090b; color: white; font-family: sans-serif; margin: 0; padding-bottom: 80px; }
+    .header { padding: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #1f2937; background: #111827; position: sticky; top: 0; z-index: 100; }
+    .logo { color: #f59e0b; font-size: 20px; font-weight: 900; display: flex; align-items: center; gap: 5px; }
+    .balance { font-weight: bold; font-size: 16px; color: #22c55e; display: flex; align-items: center; gap: 5px; }
+    
+    .wallet-container { padding: 20px; max-width: 600px; margin: 0 auto; }
+    .wallet-card { background: linear-gradient(135deg, #1e293b, #0f172a); border-radius: 15px; padding: 25px; margin-bottom: 20px; border: 1px solid #334155; box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
+    .wallet-label { color: #9ca3af; font-size: 14px; margin-bottom: 5px; }
+    .wallet-balance { font-size: 32px; font-weight: bold; color: #fff; margin-bottom: 20px; }
+    
+    .action-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 30px; }
+    .btn-wallet { padding: 15px; border-radius: 10px; border: none; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 16px; transition: transform 0.2s; }
+    .btn-wallet:active { transform: scale(0.98); }
+    .btn-deposit { background: #22c55e; color: white; }
+    .btn-withdraw { background: #f59e0b; color: white; }
+    
+    .section-title { font-size: 18px; font-weight: bold; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
+    .history-container { background: #111827; border-radius: 12px; border: 1px solid #1f2937; overflow: hidden; }
+    .tx-item { padding: 15px; border-bottom: 1px solid #1f2937; display: flex; justify-content: space-between; align-items: center; }
+    .tx-item:last-child { border-bottom: none; }
+    .tx-info h4 { margin: 0; font-size: 14px; text-transform: capitalize; }
+    .tx-info p { margin: 2px 0 0 0; font-size: 11px; color: #9ca3af; }
+    .tx-amount { font-weight: bold; font-size: 14px; }
+    .amt-deposit { color: #22c55e; }
+    .amt-withdrawal { color: #f59e0b; }
+    
+    .info-card { background: #1f2937; padding: 15px; border-radius: 10px; margin-top: 30px; border-left: 4px solid #3b82f6; }
+    .info-card p { margin: 5px 0; font-size: 13px; color: #d1d5db; line-height: 1.4; }
+
+    /* Footer */
+    .footer { position: fixed; bottom: 0; width: 100%; background: #111827; display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #1f2937; z-index: 10; }
+    .footer a { color: #9ca3af; text-decoration: none; font-size: 12px; display: flex; flex-direction: column; align-items: center; }
+    .footer a.active { color: #ef4444; }
+
+    /* Popups - Reusing index.html logic */
+    .popup-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center; }
+    .popup-content { background: #18181b; padding: 20px; border-radius: 10px; width: 90%; max-width: 400px; position: relative; max-height: 90vh; overflow-y: auto; }
+    .popup-close { position: absolute; top: 10px; right: 15px; color: white; cursor: pointer; font-size: 24px; font-weight: bold; }
+    .form-group { margin-bottom: 15px; }
+    .form-group label { display: block; margin-bottom: 5px; font-size: 12px; color: #9ca3af; }
+    .form-control { width: 100%; padding: 10px; background: #111827; border: 1px solid #374151; color: white; border-radius: 5px; box-sizing: border-box; font-size: 16px; }
+    .btn-submit { width: 100%; padding: 12px; background: #e11d48; color: white; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; margin-top: 10px; font-size: 16px; }
+    .preset { background: #1f2937; border: none; color: white; padding: 10px 0; border-radius: 4px; cursor: pointer; font-size: 12px; }
+    .bet-presets { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; margin-bottom: 10px; }
+    
+    #toast-container { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 9999; display: flex; flex-direction: column; gap: 10px; width: 90%; max-width: 400px; pointer-events: none; }
+    .toast-msg { padding: 15px 20px; border-radius: 8px; font-weight: bold; font-size: 14px; text-align: center; color: white; opacity: 0; transform: translateY(-20px); transition: all 0.3s ease; box-shadow: 0 4px 6px rgba(0,0,0,0.3); pointer-events: auto; }
+    .toast-msg.show { opacity: 1; transform: translateY(0); }
+    .toast-success { background: linear-gradient(135deg, #16a34a, #22c55e); }
+    .toast-error { background: linear-gradient(135deg, #dc2626, #ef4444); }
+  </style>
+</head>
+<body>
+  <div id="toast-container"></div>
+
+  <div class="header">
+    <div class="logo"><span style="color:#facc15">👑</span> Swift Wallet</div>
+    <div class="balance">
+      <span id="headerBalance">KSH 0.00</span>
+    </div>
+  </div>
+
+  <div class="wallet-container" id="authenticatedContent" style="display:none;">
+    <div class="wallet-card">
+      <div class="wallet-label">Available Balance</div>
+      <div class="wallet-balance" id="mainBalance">KSH 0.00</div>
+      
+      <div class="action-buttons">
+        <button class="btn-wallet btn-deposit" onclick="openDeposit()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+          Deposit
+        </button>
+        <button class="btn-wallet btn-withdraw" onclick="openWithdraw()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/></svg>
+          Withdraw
+        </button>
+      </div>
+    </div>
+
+    <div class="section-title">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+      Transaction History
+    </div>
+    <div class="history-container" id="txHistory">
+      <p style="text-align:center; padding:20px; color:#9ca3af;">Loading transactions...</p>
+    </div>
+
+    <div class="info-card">
+      <p><strong>Withdrawal Info:</strong></p>
+      <p>• Minimum withdrawal: KSH 100.00</p>
+      <p>• Maximum withdrawal: KSH 100,000.00 per day</p>
+      <p>• Processing time: Instant to M-Pesa</p>
+      <p>• 24/7 Customer support available</p>
+    </div>
+  </div>
+
+  <div class="wallet-container" id="guestContent" style="display:none; text-align:center; margin-top:50px;">
+    <div class="wallet-card">
+      <h2 style="margin-top:0;">Access Denied</h2>
+      <p style="color:#9ca3af; margin-bottom:20px;">Please login to access your wallet and transactions.</p>
+      <button class="btn-submit" style="background:#3b82f6;" onclick="window.location.href='index.html'">Go to Login</button>
+    </div>
+  </div>
+
+  <!-- Reusing Popups from index.html -->
+  <div class="popup-overlay" id="depositPopup">
+    <div class="popup-content">
+      <span class="popup-close" onclick="document.getElementById('depositPopup').style.display='none'">×</span>
+      <h2 style="margin-top:0;">Deposit via M-Pesa</h2>
+      <div class="form-group">
+        <label>M-Pesa Number</label>
+        <input type="text" class="form-control" id="depositPhone" readonly style="color:#9ca3af; background:#1f2937;">
+      </div>
+      <div class="form-group">
+        <label>Amount (Min KSH 1)</label>
+        <input type="number" class="form-control" id="depositAmount" value="100" min="1">
+      </div>
+      <div class="bet-presets">
+        <button class="preset" onclick="document.getElementById('depositAmount').value=100">100</button>
+        <button class="preset" onclick="document.getElementById('depositAmount').value=200">200</button>
+        <button class="preset" onclick="document.getElementById('depositAmount').value=500">500</button>
+        <button class="preset" onclick="document.getElementById('depositAmount').value=1000">1K</button>
+        <button class="preset" onclick="document.getElementById('depositAmount').value=5000">5K</button>
+      </div>
+      <button class="btn-submit" style="background:#22c55e;" onclick="submitDeposit()">Initiate Deposit</button>
+    </div>
+  </div>
+
+  <div class="popup-overlay" id="withdrawPopup">
+    <div class="popup-content">
+      <span class="popup-close" onclick="document.getElementById('withdrawPopup').style.display='none'">×</span>
+      <h2 style="margin-top:0;">Withdraw to M-Pesa</h2>
+      <div class="form-group">
+        <label>M-Pesa Number</label>
+        <input type="text" class="form-control" id="withdrawPhone" readonly style="color:#9ca3af; background:#1f2937;">
+      </div>
+      <div class="form-group">
+        <label>Amount (Min KSH 100)</label>
+        <input type="number" class="form-control" id="withdrawAmount" value="100" min="100">
+      </div>
+      <div class="bet-presets">
+        <button class="preset" onclick="document.getElementById('withdrawAmount').value=100">100</button>
+        <button class="preset" onclick="document.getElementById('withdrawAmount').value=500">500</button>
+        <button class="preset" onclick="document.getElementById('withdrawAmount').value=1000">1K</button>
+        <button class="preset" onclick="document.getElementById('withdrawAmount').value=2000">2K</button>
+        <button class="preset" onclick="document.getElementById('withdrawAmount').value=5000">5K</button>
+      </div>
+      <button class="btn-submit" style="background:#f59e0b;" onclick="submitWithdraw()">Confirm Withdrawal</button>
+    </div>
+  </div>
+
+  <div class="footer">
+    <a href="index.html">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="20" height="12" x="2" y="6" rx="2"/><path d="M6 12h4M8 10v4M15 13h.01M18 11h.01"/></svg>
+      Game
+    </a>
+    <a href="Bets.html">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2M15 2H9a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1Z"/><path d="M12 11h4M12 16h4M8 11h.01M8 16h.01"/></svg>
+      Bets
+    </a>
+    <a href="Wallet.html" class="active">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a8 8 0 0 1-5 7.96V16a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v5.96A8 8 0 0 1 2 15V7"/><path d="M22 10.5v1.07a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2V10.5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2Z"/></svg>
+      Wallet
+    </a>
+    <a href="index.html">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
+      Menu
+    </a>
+  </div>
+
+  <script>
+    const BACKEND_URL = "https://swiftaviator-server.onrender.com";
+    let currentUser = JSON.parse(localStorage.getItem('swiftcrash_user'));
+
+    function showNotification(message, type = 'success') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = `toast-msg toast-${type}`;
+      toast.innerText = message;
+      container.appendChild(toast);
+      void toast.offsetWidth;
+      toast.classList.add('show');
+      setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 300);
+      }, 3000);
+    }
+
+    window.onload = async () => {
+      if (!currentUser) {
+        document.getElementById('guestContent').style.display = 'block';
+      } else {
+        document.getElementById('authenticatedContent').style.display = 'block';
+        updateUI();
+        await fetchTransactions();
+      }
+    };
+
+    function updateUI() {
+      const bal = parseFloat(currentUser.balance).toFixed(2);
+      document.getElementById('headerBalance').innerText = `KSH ${bal}`;
+      document.getElementById('mainBalance').innerText = `KSH ${bal}`;
+    }
+
+    async function fetchTransactions() {
+      try {
+        const res = await fetch(`${BACKEND_URL}/transactions-history`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ phone: currentUser.phone })
+        });
+        const data = await res.json();
+        const container = document.getElementById('txHistory');
+        if (data.success) {
+          if (data.transactions.length === 0) {
+            container.innerHTML = '<p style="text-align:center; padding:20px; color:#9ca3af;">No transactions yet.</p>';
+          } else {
+            container.innerHTML = data.transactions.map(t => `
+              <div class="tx-item">
+                <div class="tx-info">
+                  <h4>${t.type}</h4>
+                  <p>${new Date(t.created_at).toLocaleString()}</p>
+                </div>
+                <div class="tx-amount amt-${t.type}">
+                  ${t.type === 'deposit' ? '+' : '-'} KSH ${parseFloat(t.amount).toFixed(2)}
+                </div>
+              </div>
+            `).join('');
+          }
+        }
+      } catch (e) {
+        console.error("Failed to fetch transactions");
+      }
+    }
+
+    function openDeposit() {
+      document.getElementById('depositPhone').value = currentUser.phone;
+      document.getElementById('depositPopup').style.display = 'flex';
+    }
+
+    function openWithdraw() {
+      document.getElementById('withdrawPhone').value = currentUser.phone;
+      document.getElementById('withdrawPopup').style.display = 'flex';
+    }
+
+    async function submitDeposit() {
+      const amount = document.getElementById('depositAmount').value;
+      if (!amount || amount < 1) { showNotification("Minimum deposit is KSH 1", "error"); return; }
+      
+      try {
+        const res = await fetch(`${BACKEND_URL}/pay`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ phone: currentUser.phone, amount })
+        });
+        const data = await res.json();
+        if (data.success) {
+          showNotification("STK Push sent to your phone!");
+          document.getElementById('depositPopup').style.display = 'none';
+        } else {
+          showNotification(data.error || "Failed to initiate deposit", "error");
+        }
+      } catch (e) { showNotification("Network error", "error"); }
+    }
+
+    async function submitWithdraw() {
+      const amount = document.getElementById('withdrawAmount').value;
+      if (!amount || amount < 100) { showNotification("Minimum withdrawal is KSH 100", "error"); return; }
+      if (amount > currentUser.balance) { showNotification("Insufficient balance", "error"); return; }
+
+      try {
+        const res = await fetch(`${BACKEND_URL}/withdraw`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ phone: currentUser.phone, amount })
+        });
+        const data = await res.json();
+        if (data.success) {
+          showNotification("Withdrawal successful!");
+          currentUser.balance = data.balance;
+          localStorage.setItem('swiftcrash_user', JSON.stringify(currentUser));
+          updateUI();
+          fetchTransactions();
+          document.getElementById('withdrawPopup').style.display = 'none';
+        } else {
+          showNotification(data.error || "Withdrawal failed", "error");
+        }
+      } catch (e) { showNotification("Network error", "error"); }
+    }
+  </script>
+</body>
+</html>
