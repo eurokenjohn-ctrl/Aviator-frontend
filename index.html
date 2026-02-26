@@ -16,6 +16,7 @@
     .logo { color: #f59e0b; font-size: 20px; font-weight: 900; display: flex; align-items: center; gap: 5px; }
     .header-actions { display: flex; gap: 10px; align-items: center; }
     .btn-deposit { background-color: #22c55e; color: white; padding: 8px 15px; border-radius: 6px; font-weight: bold; border: none; cursor: pointer; display: none; }
+    .btn-withdraw { background-color: #f59e0b; color: white; padding: 8px 15px; border-radius: 6px; font-weight: bold; border: none; cursor: pointer; display: none; margin-top: 5px; }
     .btn-login-header { background-color: #3b82f6; color: white; padding: 8px 15px; border-radius: 6px; font-weight: bold; border: none; cursor: pointer; }
     .balance { font-weight: bold; font-size: 14px; color: #22c55e; display: none; }
     .profile-icon { background: #374151; padding: 5px 10px; border-radius: 50%; cursor: pointer; display: none; }
@@ -86,9 +87,19 @@
     .notification-item.unread { background: #1e293b; border-left-color: #f59e0b; }
     .notification-time { font-size: 10px; color: #9ca3af; margin-top: 5px; }
 
+    /* Custom Toast Notifications */
+    #toast-container { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 9999; display: flex; flex-direction: column; gap: 10px; width: 90%; max-width: 400px; pointer-events: none; }
+    .toast-msg { padding: 15px 20px; border-radius: 8px; font-weight: bold; font-size: 14px; text-align: center; color: white; opacity: 0; transform: translateY(-20px); transition: all 0.3s ease; box-shadow: 0 4px 6px rgba(0,0,0,0.3); pointer-events: auto; }
+    .toast-msg.show { opacity: 1; transform: translateY(0); }
+    .toast-success { background: linear-gradient(135deg, #16a34a, #22c55e); }
+    .toast-error { background: linear-gradient(135deg, #dc2626, #ef4444); }
+
   </style>
 </head>
 <body>
+
+  <!-- Toast Container -->
+  <div id="toast-container"></div>
 
   <!-- Loading Screen -->
   <div id="loadingScreen" style="position: fixed; inset: 0; background: #000; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center;">
@@ -136,7 +147,8 @@
   </div>
 
   <div id="hamburgerDropdown" style="display:none; background:#1f2937; position:absolute; right:10px; top:60px; z-index:100; border-radius:8px; padding:10px; box-shadow:0 4px 6px rgba(0,0,0,0.3); border:1px solid #374151; min-width:150px;">
-      <button class="btn-deposit" id="headerDepositBtn" style="width:100%; margin-bottom:10px; display:block;" onclick="openDeposit(); toggleHamburger();">+ DEPOSIT</button>
+      <button class="btn-deposit" id="headerDepositBtn" style="width:100%; margin-bottom:5px; display:block;" onclick="openDeposit(); toggleHamburger();">+ DEPOSIT</button>
+      <button class="btn-withdraw" id="headerWithdrawBtn" style="width:100%; margin-bottom:10px; display:block;" onclick="openWithdraw(); toggleHamburger();">- WITHDRAW</button>
       
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; cursor:pointer; font-size:14px;" onclick="openNotifications(); toggleHamburger();">
         <span>Notifications</span>
@@ -168,6 +180,30 @@
       </div>
   </div>
   <script>
+    function showNotification(message, type = 'success') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = `toast-msg toast-${type}`;
+      toast.innerText = message;
+      container.appendChild(toast);
+      
+      // Trigger reflow for animation
+      void toast.offsetWidth;
+      toast.classList.add('show');
+      
+      setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 300);
+      }, 3000);
+    }
+
+    // Override default alert
+    window.alert = function(msg) {
+      // Try to guess if it's an error from the message text
+      const type = msg.toLowerCase().includes('fail') || msg.toLowerCase().includes('error') || msg.toLowerCase().includes('invalid') || msg.toLowerCase().includes('insufficient') ? 'error' : 'success';
+      showNotification(msg, type);
+    };
+
     let hamburgerTimeout;
     function toggleHamburger() {
       const drop = document.getElementById('hamburgerDropdown');
@@ -557,6 +593,35 @@
     </div>
   </div>
 
+  <!-- WITHDRAW POPUP -->
+  <div class="popup-overlay" id="withdrawPopup">
+    <div class="popup-content">
+      <span class="popup-close" onclick="document.getElementById('withdrawPopup').style.display='none'">×</span>
+      <h2 style="margin-top:0;">Withdraw to M-Pesa</h2>
+      <div class="form-group">
+        <label>M-Pesa Number</label>
+        <input type="text" class="form-control" id="withdrawPhone" readonly style="color:#9ca3af; background:#1f2937;">
+      </div>
+      <div class="form-group">
+        <label>Amount (Min KSH 100)</label>
+        <input type="number" class="form-control" id="withdrawAmount" value="100" min="100">
+      </div>
+      <div class="bet-presets" style="margin-bottom:15px;">
+        <button class="preset" onclick="document.getElementById('withdrawAmount').value=100">100</button>
+        <button class="preset" onclick="document.getElementById('withdrawAmount').value=500">500</button>
+        <button class="preset" onclick="document.getElementById('withdrawAmount').value=1000">1K</button>
+        <button class="preset" onclick="document.getElementById('withdrawAmount').value=2000">2K</button>
+        <button class="preset" onclick="document.getElementById('withdrawAmount').value=5000">5K</button>
+      </div>
+      <p style="font-size: 14px; color: #9ca3af; text-align:center;">Current Balance: <strong id="withdrawCurrentBalance" style="color:white;">KSH 0.00</strong></p>
+      
+      <div class="error-msg" id="withdrawError"></div>
+      <div class="success-msg" id="withdrawSuccess"></div>
+      <div class="spinner" id="withdrawSpinner"></div>
+      <button class="btn-submit" id="submitWithdrawBtn" style="background:#f59e0b;" onclick="submitWithdraw()">Withdraw</button>
+    </div>
+  </div>
+
   <script>
     // BACKEND CONFIGURATION
     const BACKEND_URL = "https://swiftaviator-server.onrender.com"; // Change to your live backend URL
@@ -781,6 +846,73 @@
         spinner.style.display = 'none';
         errorEl.innerText = "Network error. Try again.";
         errorEl.style.display = 'block';
+      }
+    }
+
+    // WITHDRAW LOGIC
+    function openWithdraw() {
+      if(!currentUser) {
+        showNotification("Please login first", "error");
+        return;
+      }
+      document.getElementById('withdrawPhone').value = currentUser.phone;
+      document.getElementById('withdrawCurrentBalance').innerText = `KSH ${parseFloat(currentUser.balance).toFixed(2)}`;
+      document.getElementById('withdrawPopup').style.display = 'flex';
+      document.getElementById('withdrawSuccess').style.display = 'none';
+      document.getElementById('withdrawError').style.display = 'none';
+    }
+
+    async function submitWithdraw() {
+      const amount = document.getElementById('withdrawAmount').value;
+      const errorEl = document.getElementById('withdrawError');
+      const successEl = document.getElementById('withdrawSuccess');
+      const spinner = document.getElementById('withdrawSpinner');
+      const btn = document.getElementById('submitWithdrawBtn');
+
+      if (amount < 100) { errorEl.innerText = "Min withdrawal is KSH 100"; errorEl.style.display = 'block'; return; }
+      if (parseFloat(amount) > parseFloat(currentUser.balance)) { errorEl.innerText = "Insufficient balance"; errorEl.style.display = 'block'; return; }
+
+      errorEl.style.display = 'none';
+      spinner.style.display = 'block';
+      btn.style.display = 'none';
+
+      try {
+        const res = await fetch(`${BACKEND_URL}/withdraw`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ phone: currentUser.phone, amount })
+        });
+        const data = await res.json();
+        spinner.style.display = 'none';
+
+        if (data.success) {
+          currentUser.balance = parseFloat(data.balance);
+          localStorage.setItem('swiftcrash_user', JSON.stringify(currentUser));
+          updateUIForAuth();
+          
+          playSound('deposit'); // You can reuse the deposit sound or make a new one
+          successEl.innerHTML = `<div style="display:flex; flex-direction:column; align-items:center;"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="animate-bounce"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg><span style="margin-top:10px;">Withdrawal successful! Balance updated.</span></div>`;
+          document.getElementById('withdrawCurrentBalance').innerText = `KSH ${parseFloat(currentUser.balance).toFixed(2)}`;
+          document.getElementById('balanceText').innerText = `KSH ${parseFloat(currentUser.balance).toFixed(2)}`;
+          showNotification("Withdrawal successful!", "success");
+          
+          setTimeout(() => {
+            document.getElementById('withdrawPopup').style.display = 'none';
+            btn.style.display = 'block';
+            successEl.innerHTML = '';
+          }, 2000);
+        } else {
+          errorEl.innerText = data.error || "Withdrawal failed";
+          errorEl.style.display = 'block';
+          btn.style.display = 'block';
+          showNotification(data.error || "Withdrawal failed", "error");
+        }
+      } catch (err) {
+        spinner.style.display = 'none';
+        errorEl.innerText = "Network error. Try again.";
+        errorEl.style.display = 'block';
+        btn.style.display = 'block';
+        showNotification("Network error. Try again.", "error");
       }
     }
 
