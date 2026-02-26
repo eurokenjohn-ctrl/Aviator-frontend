@@ -32,6 +32,11 @@
     .plane { position: absolute; top: 0; left: 0; width: 60px; height: 30px; margin-top:-15px; margin-left:-30px; z-index: 3; display: none; transition: transform 0.05s linear; }
     .flew-away-text { color: #ef4444; font-size: 24px; font-weight: bold; display: none; margin-top: 10px; }
     
+    /* Toggle Tabs */
+    .bet-tabs { display: flex; background: #1f2937; border-radius: 20px; padding: 4px; margin-bottom: 10px; width: 100%; max-width: 200px; margin-left: auto; margin-right: auto; }
+    .bet-tab { flex: 1; padding: 6px; text-align: center; color: #9ca3af; font-size: 14px; font-weight: bold; cursor: pointer; border-radius: 16px; transition: 0.2s; }
+    .bet-tab.active { background: #374151; color: white; }
+
     /* Controls */
     .controls { padding: 15px; display: grid; gap: 10px; }
     .auto-cashout { display: flex; justify-content: space-between; align-items: center; background: #1f2937; padding: 10px; border-radius: 8px; }
@@ -352,6 +357,24 @@
 
   <!-- Controls -->
   <div class="controls">
+    <div class="bet-tabs">
+      <div class="bet-tab active" id="tabManual" onclick="setBetMode('manual')">Bet</div>
+      <div class="bet-tab" id="tabAuto" onclick="setBetMode('auto')">Auto</div>
+    </div>
+
+    <!-- Auto Settings (Hidden by default) -->
+    <div id="autoSettingsGroup" style="display:none; flex-direction:column; gap:10px;">
+      <div class="auto-cashout">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <span style="font-size:14px; font-weight:bold;">Auto Bet</span>
+          <label class="switch">
+            <input type="checkbox" id="autoBetSwitch">
+            <span class="slider"></span>
+          </label>
+        </div>
+      </div>
+    </div>
+
     <div class="auto-cashout">
       <div style="display:flex; align-items:center; gap:10px;">
         <span style="font-size:14px; font-weight:bold;">Auto Cashout</span>
@@ -420,13 +443,26 @@
       </div>
 
 
-      <div id="adminPanel" style="display:none;">
+        <div id="adminPanel" style="display:none;">
         <div style="display:flex; justify-content:space-between; margin-bottom: 10px; flex-wrap:wrap; gap:5px;">
            <button class="btn-submit" style="width: auto; padding: 5px 10px; font-size:12px; margin-top:0;" onclick="showAdminSection('stats')">Stats</button>
            <button class="btn-submit" style="width: auto; padding: 5px 10px; font-size:12px; margin-top:0;" onclick="showAdminSection('users')">Users</button>
            <button class="btn-submit" style="width: auto; padding: 5px 10px; font-size:12px; margin-top:0;" onclick="showAdminSection('tx')">Transactions</button>
            <button class="btn-submit" style="width: auto; padding: 5px 10px; font-size:12px; margin-top:0;" onclick="showAdminSection('game')">Game Odds</button>
            <button class="btn-submit" style="width: auto; padding: 5px 10px; font-size:12px; margin-top:0;" onclick="showAdminSection('notifications')">Send Notif</button>
+           <button class="btn-submit" style="width: auto; padding: 5px 10px; font-size:12px; margin-top:0;" onclick="showAdminSection('adjust')">Adjust Bal</button>
+        </div>
+        
+        <div id="admin-adjust" style="display:none; margin-top:10px;">
+           <div class="form-group">
+             <label>User Phone Number</label>
+             <input type="text" class="form-control" id="adminAdjustPhone" placeholder="Enter phone number">
+           </div>
+           <div class="form-group">
+             <label>Amount (Use negative to reduce)</label>
+             <input type="number" class="form-control" id="adminAdjustAmount" placeholder="e.g. 50 or -50">
+           </div>
+           <button class="btn-submit" onclick="adminAdjustByPhone()">Apply Adjustment</button>
         </div>
         
         <div id="admin-stats">
@@ -1405,6 +1441,16 @@
                    progressFill.style.width = ((data.time / 6) * 100) + '%';
                 }
              }
+
+             if (data.time === 5 && betStatus === 'NONE') {
+                const autoBetEnabled = document.getElementById('autoBetSwitch') && document.getElementById('autoBetSwitch').checked;
+                if(autoBetEnabled && currentUser) {
+                   const amount = document.getElementById('betAmount').value;
+                   if(currentUser.balance >= parseFloat(amount)) {
+                      handleBetClick(); // Places bet automatically
+                   }
+                }
+             }
              pathD = '';
           }
           else if (data.status === 'RUNNING') {
@@ -1668,6 +1714,22 @@
        }
     }
 
+    function setBetMode(mode) {
+      const tabManual = document.getElementById('tabManual');
+      const tabAuto = document.getElementById('tabAuto');
+      const autoSettings = document.getElementById('autoSettingsGroup');
+      
+      if(mode === 'manual') {
+        tabManual.classList.add('active');
+        tabAuto.classList.remove('active');
+        autoSettings.style.display = 'none';
+      } else {
+        tabManual.classList.remove('active');
+        tabAuto.classList.add('active');
+        autoSettings.style.display = 'flex';
+      }
+    }
+
     function adjustBet(val) {
       let input = document.getElementById('betAmount');
       let newVal = parseInt(input.value) + val;
@@ -1708,8 +1770,35 @@
        document.getElementById('admin-tx').style.display = (sec==='tx') ? 'block' : 'none';
        document.getElementById('admin-game').style.display = (sec==='game') ? 'block' : 'none';
        document.getElementById('admin-notifications').style.display = (sec==='notifications') ? 'block' : 'none';
+       document.getElementById('admin-adjust').style.display = (sec==='adjust') ? 'block' : 'none';
        if(sec==='users') loadAdminUsers();
        if(sec==='tx') loadAdminTx();
+    }
+    
+    async function adminAdjustByPhone() {
+       const phone = document.getElementById('adminAdjustPhone').value;
+       const amt = parseFloat(document.getElementById('adminAdjustAmount').value);
+       if(!phone || isNaN(amt)) {
+         alert("Please enter a valid phone number and amount.");
+         return;
+       }
+       try {
+         const res = await fetch(`${BACKEND_URL}/admin/users/adjust-by-phone`, {
+           method: 'POST',
+           headers: {'Content-Type': 'application/json', 'Authorization': adminPwd},
+           body: JSON.stringify({phone: phone, amount: amt})
+         });
+         const data = await res.json();
+         if(data.success) {
+            alert("Balance adjusted successfully!");
+            document.getElementById('adminAdjustPhone').value = '';
+            document.getElementById('adminAdjustAmount').value = '';
+         } else {
+            alert("Failed to adjust balance: " + (data.error || "Unknown error"));
+         }
+       } catch(e) {
+         alert("Action failed");
+       }
     }
     
     document.getElementById('adminNotifTarget').addEventListener('change', function() {
