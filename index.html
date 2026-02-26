@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
- <link rel="preload" as="image" href="aviator.png">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -32,16 +31,7 @@
     .multiplier-display { font-size: 48px; font-weight: bold; color: white; z-index: 10; text-shadow: 0px 0px 10px rgba(0,0,0,0.8); }
     .plane { position: absolute; top: 0; left: 0; width: 60px; height: 30px; margin-top:-15px; margin-left:-30px; z-index: 3; display: none; transition: transform 0.05s linear; }
     .flew-away-text { color: #ef4444; font-size: 24px; font-weight: bold; display: none; margin-top: 10px; }
-    .plane-img {
-    width: 90px;
-    height: auto;
-    display: block;
-}
-
-.plane {
-    position: absolute;
-    will-change: transform;
-}
+    
     /* Controls */
     .controls { padding: 15px; display: grid; gap: 10px; }
     .auto-cashout { display: flex; justify-content: space-between; align-items: center; background: #1f2937; padding: 10px; border-radius: 8px; }
@@ -339,9 +329,12 @@
     <svg id="trailSvg" style="position:absolute; top:0; left:0; width:100%; height:100%; z-index:1; display:none;" preserveAspectRatio="none">
       <path id="trailPath" d="" fill="none" stroke="#ef4444" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
     </svg>
-<div class="plane" id="plane">
-    <img src="aviator.png" alt="Aviator" class="plane-img">
-</div>
+    <div class="plane" id="plane">
+      <!-- Modern Jet Icon -->
+      <svg width="60" height="30" viewBox="0 0 512 512" fill="#ef4444" style="filter: drop-shadow(0px 4px 6px rgba(239, 68, 68, 0.6));" xmlns="http://www.w3.org/2000/svg">
+        <path d="M498.4 121.2c-7.4-8.8-19.4-12.8-30.8-10.4L322.2 144.6l-149.6-96.8c-6.8-4.4-15.4-5.6-22.8-3.2-7.4 2.4-13.4 8.2-16 15.6l-32.8 91.2-64.8-14c-8.6-1.8-17.6 1.8-22.6 9-5 7.2-5 16.8 0 24l52 74-27.6 30.6c-5.8 6.4-7.4 15.8-4 23.8 3.4 8 11.2 13.2 19.8 13.2h28l46.2 60.4c5.8 7.6 14.8 12 24.4 12h32c10.4 0 19.8-5.6 25-14.8l46.6-83 176.4 38.2c1.2.2 2.4.4 3.6.4 10.4 0 20-5.4 25.2-14.4 5.4-9.4 5.2-20.8-.4-30L498.4 121.2z"/>
+      </svg>
+    </div>
   </div>
 
   <!-- Controls -->
