@@ -168,11 +168,31 @@
       </div>
   </div>
   <script>
+    let hamburgerTimeout;
     function toggleHamburger() {
       const drop = document.getElementById('hamburgerDropdown');
-      drop.style.display = drop.style.display === 'block' ? 'none' : 'block';
+      if (drop.style.display === 'block') {
+         drop.style.display = 'none';
+         clearTimeout(hamburgerTimeout);
+      } else {
+         drop.style.display = 'block';
+         // close after 20 secs
+         hamburgerTimeout = setTimeout(() => {
+             drop.style.display = 'none';
+         }, 20000);
+      }
     }
     
+    // Close on clicking outside
+    document.addEventListener('click', function(event) {
+      const drop = document.getElementById('hamburgerDropdown');
+      const icon = document.getElementById('hamburgerMenuIcon');
+      if (drop && icon && drop.style.display === 'block' && !drop.contains(event.target) && !icon.contains(event.target)) {
+        drop.style.display = 'none';
+        clearTimeout(hamburgerTimeout);
+      }
+    });
+
     function toggleDarkMode(isDark) {
       if(isDark) {
          document.body.style.backgroundColor = '#09090b';
@@ -491,13 +511,20 @@
 
   <!-- NOTIFICATIONS POPUP -->
   <div class="popup-overlay" id="notificationsPopup">
-    <div class="popup-content">
-      <span class="popup-close" onclick="closeNotifications()">×</span>
-      <h2 style="margin-top:0;">Notifications</h2>
-      <div id="notificationsList" style="max-height:400px; overflow-y:auto;">
-        <p style="text-align:center; color:#9ca3af;">No notifications yet</p>
+    <div class="popup-content" style="background:#111827; border: 1px solid #374151; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); padding: 0; overflow: hidden; max-width: 450px;">
+      <div style="background: linear-gradient(90deg, #1f2937, #111827); padding: 15px 20px; border-bottom: 1px solid #374151; display: flex; justify-content: space-between; align-items: center;">
+        <h2 style="margin:0; font-size: 18px; color: #fff; display: flex; align-items: center; gap: 8px;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          Notifications
+        </h2>
+        <span class="popup-close" onclick="closeNotifications()" style="position: static; font-size: 24px; color: #9ca3af; transition: color 0.2s; cursor: pointer;">×</span>
       </div>
-      <button class="btn-submit" onclick="markAllAsRead()" style="background:#374151; margin-top:10px;">Mark All as Read</button>
+      <div id="notificationsList" style="max-height:350px; overflow-y:auto; padding: 15px 20px; background: #0b0f19;">
+        <p style="text-align:center; color:#9ca3af; font-size: 14px; padding: 20px 0;">No notifications yet</p>
+      </div>
+      <div style="padding: 15px 20px; border-top: 1px solid #374151; background: #1f2937;">
+        <button class="btn-submit" onclick="markAllAsRead()" style="background:#3b82f6; margin-top:0; border-radius: 8px; font-weight: bold; transition: background 0.2s;">Mark All as Read</button>
+      </div>
     </div>
   </div>
 
@@ -807,33 +834,42 @@
                 if (status === "success" || status === "processing") {
                   clearInterval(checkInterval);
 
-
+                  // Update UI immediately if we already know it's a success
+                  currentUser.balance = parseFloat(currentUser.balance) + parseFloat(amount);
+                  localStorage.setItem('swiftcrash_user', JSON.stringify(currentUser));
+                  updateUIForAuth();
+                  document.getElementById('depositCurrentBalance').innerText = `KSH ${parseFloat(currentUser.balance).toFixed(2)}`;
+                  
                   successEl.innerHTML = `Payment confirmed ✅ Updating balance... <span class="spinner" style="display:inline-block; width:15px; height:15px; margin:0 0 -3px 5px; border-width:2px;"></span>`;
                   
                   // Force refresh from database server until balance increases
-                  const oldBalance = currentUser.balance;
+                  const oldBalance = currentUser.balance - parseFloat(amount);
                   let attempts = 0;
-                  const balancePoll = setInterval(async () => {
+                  const checkBalanceAndUpdate = async () => {
                      attempts++;
                      await refreshBalanceSilently();
-                     if (currentUser.balance > oldBalance || attempts > 30) {
+                     if (currentUser.balance > oldBalance || attempts > 60) {
                         clearInterval(balancePoll);
                         if (currentUser.balance > oldBalance) {
                            playSound('deposit');
                            successEl.innerHTML = `<div style="display:flex; flex-direction:column; align-items:center;"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="animate-bounce"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg><span style="margin-top:10px;">Balance updated successfully!</span></div>`;
+                           document.getElementById('depositCurrentBalance').innerText = `KSH ${parseFloat(currentUser.balance).toFixed(2)}`;
+                           document.getElementById('balanceText').innerText = `KSH ${parseFloat(currentUser.balance).toFixed(2)}`;
                            setTimeout(() => {
                               document.getElementById('depositPopup').style.display = 'none';
                               btn.style.display = 'block';
-                           }, 2500);
+                           }, 1000);
                         } else {
                            successEl.innerHTML = "Taking longer than usual. Balance will update shortly.";
                            setTimeout(() => {
                               document.getElementById('depositPopup').style.display = 'none';
                               btn.style.display = 'block';
-                           }, 2500);
+                           }, 1500);
                         }
                      }
-                  }, 2000);
+                  };
+                  const balancePoll = setInterval(checkBalanceAndUpdate, 1000);
+                  checkBalanceAndUpdate(); // Check immediately
 
                 }
 
