@@ -59,7 +59,20 @@
 
     /* Popups */
     .popup-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center; }
-    .popup-content { background: #18181b; padding: 20px; border-radius: 10px; width: 90%; max-width: 400px; position: relative; max-height: 90vh; overflow-y: auto; }
+    .popup-content { background: #111827; padding: 20px; border-radius: 12px; width: 90%; max-width: 400px; position: relative; max-height: 90vh; overflow-y: auto; border: 1px solid #1f2937; }
+    .profile-card { background: #1f2937; padding: 15px; border-radius: 10px; margin-bottom: 10px; display: flex; flex-direction: column; gap: 10px; border: 1px solid #374151; }
+    .profile-card h4 { margin: 0; font-size: 16px; color: #fff; }
+    .profile-card p { margin: 0; color: #9ca3af; font-size: 14px; }
+    .profile-input-box { background: #111827; border: 1px solid #374151; border-radius: 8px; padding: 12px; color: white; width: 100%; box-sizing: border-box; }
+    .profile-action-btn { display: flex; justify-content: space-between; align-items: center; background: #1f2937; padding: 15px; border-radius: 10px; margin-bottom: 10px; cursor: pointer; border: 1px solid #374151; }
+    .profile-action-btn:hover { background: #374151; }
+    .profile-action-info h4 { margin: 0; font-size: 16px; color: white; }
+    .profile-action-info p { margin: 0; font-size: 12px; color: #9ca3af; }
+    .exit-btn { display: flex; align-items: center; gap: 10px; background: #1f2937; padding: 15px; border-radius: 10px; cursor: pointer; color: #ef4444; border: 1px solid #374151; width: 100%; box-sizing: border-box; font-weight: bold; }
+    .support-section { margin-top: 20px; }
+    .support-section h4 { margin-bottom: 10px; color: #fff; }
+    .support-icons { display: flex; gap: 15px; }
+    .support-icon { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; cursor: pointer; }
     .popup-close { position: absolute; top: 10px; right: 15px; color: white; cursor: pointer; font-size: 24px; font-weight: bold; }
     .form-group { margin-bottom: 15px; }
     .form-group label { display: block; margin-bottom: 5px; font-size: 12px; color: #9ca3af; }
@@ -644,22 +657,56 @@
   <div class="popup-overlay" id="profilePopup">
     <div class="popup-content">
       <span class="popup-close" onclick="document.getElementById('profilePopup').style.display='none'">×</span>
-      <div style="text-align:center; margin-bottom:15px;">
-        <div style="font-size:48px;">👤</div>
-        <h3 style="margin:5px 0 0 0;" id="profileUsername">Username</h3>
-        <p style="margin:0; color:#9ca3af; font-size:14px;" id="profilePhone">254xxx</p>
+      
+      <div class="profile-card">
+        <h4>Phone Number</h4>
+        <div class="profile-input-box" id="profilePhone">254xxx</div>
       </div>
-      <button class="btn-submit" style="background:#3b82f6; margin-bottom:10px;" onclick="openChangePin()">Change PIN</button>
-      <button class="btn-submit" style="background:#8b5cf6; margin-bottom:10px;" onclick="openTransactions()">Transactions</button>
-      <button class="btn-submit" style="background:#ef4444; margin-bottom:10px;" onclick="doLogout()">Logout</button>
-      <button class="btn-submit" style="background:transparent; border:1px solid #ef4444; color:#ef4444;" onclick="openDeleteAccount()">Delete Account</button>
+
+      <div class="profile-card">
+        <h4>Change Password</h4>
+        <input type="password" class="profile-input-box" id="newPasswordInput" placeholder="New Password">
+        <input type="password" class="profile-input-box" id="confirmPasswordInput" placeholder="Confirm Password">
+        <button class="btn-submit" style="background:#3b82f6; margin-top: 5px;" onclick="submitQuickChangePassword()">Update Password</button>
+      </div>
+
+      <div class="profile-action-btn" onclick="openTransactions()">
+        <div class="profile-action-info">
+          <h4>Transactions</h4>
+          <p>Operations that affected the change in balance</p>
+        </div>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="#3b82f6"><path d="M12 1L9 12l12-3-12-3z"/></svg>
+      </div>
+
+      <div class="profile-action-btn" onclick="openDeleteAccount()">
+        <div class="profile-action-info">
+          <h4>Delete Account</h4>
+          <p>Self Exclusion</p>
+        </div>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="#3b82f6"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+      </div>
+
+      <button class="exit-btn" onclick="doLogout()">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Exit
+      </button>
+
+      <div class="support-section">
+        <h4>Support</h4>
+        <div class="support-icons">
+          <div class="support-icon" style="background:#3b82f6;"><svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg></div>
+          <div class="support-icon" style="background:#ef4444;"><svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg></div>
+          <div class="support-icon" style="background:#22c55e;"><svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M12 2C6.48 2 2 6.48 2 12c0 2.17.7 4.19 1.94 5.86L3 22l4.14-1.06C8.73 21.61 10.3 22 12 22c5.52 0 10-4.48 10-10S17.52 2 12 2z"/></svg></div>
+          <div class="support-icon" style="background:#f97316;"><svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg></div>
+        </div>
+      </div>
     </div>
   </div>
 
   <!-- CHANGE PIN POPUP -->
   <div class="popup-overlay" id="changePinPopup">
     <div class="popup-content">
-      <span class="popup-close" onclick="document.getElementById('changePinPopup').style.display='none'">×</span>
+      <span class="popup-close" onclick="document.getElementById('changePinPopup').style.display='none'; openProfilePopup();">×</span>
       <h2 style="margin-top:0;">Change PIN</h2>
       <div class="form-group">
         <label>Old PIN</label>
@@ -682,7 +729,7 @@
   <!-- TRANSACTIONS POPUP -->
   <div class="popup-overlay" id="transactionsPopup">
     <div class="popup-content" style="max-width:500px;">
-      <span class="popup-close" onclick="document.getElementById('transactionsPopup').style.display='none'">×</span>
+      <span class="popup-close" onclick="document.getElementById('transactionsPopup').style.display='none'; openProfilePopup();">×</span>
       <h2 style="margin-top:0;">My Transactions</h2>
       <div id="txListContainer" style="max-height:300px; overflow-y:auto; background:#111827; padding:10px; border-radius:5px;">
         <p style="text-align:center; color:#9ca3af;">Loading...</p>
@@ -693,7 +740,7 @@
   <!-- DELETE ACCOUNT POPUP -->
   <div class="popup-overlay" id="deleteAccountPopup">
     <div class="popup-content">
-      <span class="popup-close" onclick="document.getElementById('deleteAccountPopup').style.display='none'">×</span>
+      <span class="popup-close" onclick="document.getElementById('deleteAccountPopup').style.display='none'; openProfilePopup();">×</span>
       <h2 style="margin-top:0; color:#ef4444;">Delete Account</h2>
       <p style="font-size:12px; color:#9ca3af; margin-bottom:15px;">Warning: This action is permanent and cannot be undone.</p>
       <div class="form-group">
@@ -720,9 +767,35 @@
     // PROFILE SCRIPTS
     function openProfilePopup() {
       if(!currentUser) return;
-      document.getElementById('profileUsername').innerText = currentUser.username;
       document.getElementById('profilePhone').innerText = currentUser.phone;
       document.getElementById('profilePopup').style.display = 'flex';
+    }
+
+    async function submitQuickChangePassword() {
+      const newPin = document.getElementById('newPasswordInput').value;
+      const confirmPin = document.getElementById('confirmPasswordInput').value;
+      
+      if (!newPin || !confirmPin) { alert("Fill all fields"); return; }
+      if (newPin !== confirmPin) { alert("Passwords do not match"); return; }
+      if (newPin.length !== 6) { alert("PIN must be 6 digits"); return; }
+
+      try {
+        const res = await fetch(`${BACKEND_URL}/change-pin`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ phone: currentUser.phone, oldPin: currentUser.pin, newPin })
+        });
+        const data = await res.json();
+        if(data.success) {
+          alert("Password updated successfully!");
+          currentUser.pin = newPin;
+          localStorage.setItem('swiftcrash_user', JSON.stringify(currentUser));
+          document.getElementById('newPasswordInput').value = '';
+          document.getElementById('confirmPasswordInput').value = '';
+        } else {
+          alert(data.error || "Failed to update password");
+        }
+      } catch(e) { alert("Network error"); }
     }
 
     function openChangePin() {
