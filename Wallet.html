@@ -55,6 +55,11 @@
     .toast-msg.show { opacity: 1; transform: translateY(0); }
     .toast-success { background: linear-gradient(135deg, #16a34a, #22c55e); }
     .toast-error { background: linear-gradient(135deg, #dc2626, #ef4444); }
+
+      .error-msg { color: #ef4444; font-size: 12px; margin-top: 5px; display: none; }
+      .success-msg { color: #22c55e; font-size: 14px; text-align: center; margin-top: 10px; display: none; }
+      .spinner { display: none; margin: 10px auto; border: 4px solid rgba(255,255,255,0.1); border-left-color: #f97316; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; }
+      @keyframes spin { 100% { transform: rotate(360deg); } }
   </style>
 </head>
 <body>
@@ -85,10 +90,16 @@
     </div>
 
     <div class="section-title">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-      Transaction History
-    </div>
-    <div class="history-container" id="txHistory">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        Transaction History
+      </div>
+      
+      <div class="tx-tabs" style="display: flex; gap: 10px; margin-bottom: 15px; background: #111827; padding: 5px; border-radius: 8px; border: 1px solid #1f2937;">
+        <button class="tx-tab active" id="tab-all" onclick="filterTx('all', this)" style="flex: 1; padding: 8px; border: none; background: #374151; color: white; border-radius: 5px; cursor: pointer; font-size: 14px; font-weight: bold;">All</button>
+        <button class="tx-tab" id="tab-withdrawal" onclick="filterTx('withdrawal', this)" style="flex: 1; padding: 8px; border: none; background: transparent; color: #9ca3af; border-radius: 5px; cursor: pointer; font-size: 14px; font-weight: bold;">Withdrawal</button>
+        <button class="tx-tab" id="tab-deposit" onclick="filterTx('deposit', this)" style="flex: 1; padding: 8px; border: none; background: transparent; color: #9ca3af; border-radius: 5px; cursor: pointer; font-size: 14px; font-weight: bold;">Deposits</button>
+      </div>
+      <div class="history-container" id="txHistory">
       <p style="text-align:center; padding:20px; color:#9ca3af;">Loading transactions...</p>
     </div>
 
@@ -129,7 +140,12 @@
         <button class="preset" onclick="document.getElementById('depositAmount').value=1000">1K</button>
         <button class="preset" onclick="document.getElementById('depositAmount').value=5000">5K</button>
       </div>
-      <button class="btn-submit" style="background:#22c55e;" onclick="submitDeposit()">Initiate Deposit</button>
+      <p style="font-size: 14px; color: #9ca3af; text-align:center;">Current Balance: <strong id="depositCurrentBalance" style="color:white;">KSH 0.00</strong></p>
+        
+        <div class="error-msg" id="depositError"></div>
+        <div class="success-msg" id="depositSuccess"></div>
+        <div class="spinner" id="depositSpinner"></div>
+        <button class="btn-submit" id="submitDepositBtn" style="background:#22c55e;" onclick="submitDeposit()">Initiate Deposit</button>
     </div>
   </div>
 
@@ -152,7 +168,12 @@
         <button class="preset" onclick="document.getElementById('withdrawAmount').value=2000">2K</button>
         <button class="preset" onclick="document.getElementById('withdrawAmount').value=5000">5K</button>
       </div>
-      <button class="btn-submit" style="background:#f59e0b;" onclick="submitWithdraw()">Confirm Withdrawal</button>
+      <p style="font-size: 14px; color: #9ca3af; text-align:center;">Current Balance: <strong id="withdrawCurrentBalance" style="color:white;">KSH 0.00</strong></p>
+
+        <div class="error-msg" id="withdrawError"></div>
+        <div class="success-msg" id="withdrawSuccess"></div>
+        <div class="spinner" id="withdrawSpinner"></div>
+        <button class="btn-submit" id="submitWithdrawBtn" style="background:#f59e0b;" onclick="submitWithdraw()">Confirm Withdrawal</button>
     </div>
   </div>
 
@@ -178,6 +199,12 @@
   <script>
     const BACKEND_URL = "https://swiftaviator-server.onrender.com";
     let currentUser = JSON.parse(localStorage.getItem('swiftcrash_user'));
+      let allTransactions = [];
+      let currentTxFilter = 'all';
+
+      function playSound(type) {
+        // Audio logic placeholder
+      }
 
     function showNotification(message, type = 'success') {
       const container = document.getElementById('toast-container');
@@ -204,10 +231,67 @@
     };
 
     function updateUI() {
-      const bal = parseFloat(currentUser.balance).toFixed(2);
-      document.getElementById('headerBalance').innerText = `KSH ${bal}`;
-      document.getElementById('mainBalance').innerText = `KSH ${bal}`;
-    }
+        const bal = parseFloat(currentUser.balance).toFixed(2);
+        document.getElementById('headerBalance').innerText = `KSH ${bal}`;
+        document.getElementById('mainBalance').innerText = `KSH ${bal}`;
+      }
+
+      function filterTx(type, btn) {
+        currentTxFilter = type;
+        document.querySelectorAll('.tx-tab').forEach(tab => {
+          tab.style.background = 'transparent';
+          tab.style.color = '#9ca3af';
+        });
+        if(btn) {
+          btn.style.background = '#374151';
+          btn.style.color = 'white';
+        }
+        renderTransactions();
+      }
+
+      function renderTransactions() {
+        const container = document.getElementById('txHistory');
+        let filtered = allTransactions;
+        if (currentTxFilter !== 'all') {
+          filtered = allTransactions.filter(t => t.type === currentTxFilter);
+        }
+        
+        if (filtered.length === 0) {
+          container.innerHTML = '<p style="text-align:center; padding:20px; color:#9ca3af;">No transactions found.</p>';
+        } else {
+          container.innerHTML = filtered.map(t => `
+            <div class="tx-item">
+              <div class="tx-info">
+                <h4>${t.type}</h4>
+                <p>${new Date(t.created_at).toLocaleString()}</p>
+              </div>
+              <div class="tx-amount amt-${t.type}">
+                ${t.type === 'deposit' ? '+' : '-'} KSH ${parseFloat(t.amount).toFixed(2)}
+              </div>
+            </div>
+          `).join('');
+        }
+      }
+
+      async function refreshBalanceSilently() {
+        if (!currentUser) return;
+        try {
+          const res = await fetch(`${BACKEND_URL}/refresh-balance`, {
+            method: 'POST',
+            headers: { 
+              'Content-Type': 'application/json',
+              'Cache-Control': 'no-cache'
+            },
+            body: JSON.stringify({ phone: currentUser.phone })
+          });
+          const data = await res.json();
+          if (data.success) {
+            currentUser.balance = parseFloat(data.balance);
+            localStorage.setItem('swiftcrash_user', JSON.stringify(currentUser));
+            updateUI();
+          }
+        } catch (e) { console.error("Balance refresh failed"); }
+      }
 
     async function fetchTransactions() {
       try {
@@ -219,81 +303,191 @@
         const data = await res.json();
         const container = document.getElementById('txHistory');
         if (data.success) {
-          if (data.transactions.length === 0) {
-            container.innerHTML = '<p style="text-align:center; padding:20px; color:#9ca3af;">No transactions yet.</p>';
-          } else {
-            container.innerHTML = data.transactions.map(t => `
-              <div class="tx-item">
-                <div class="tx-info">
-                  <h4>${t.type}</h4>
-                  <p>${new Date(t.created_at).toLocaleString()}</p>
-                </div>
-                <div class="tx-amount amt-${t.type}">
-                  ${t.type === 'deposit' ? '+' : '-'} KSH ${parseFloat(t.amount).toFixed(2)}
-                </div>
-              </div>
-            `).join('');
+            allTransactions = data.transactions;
+            renderTransactions();
           }
-        }
       } catch (e) {
         console.error("Failed to fetch transactions");
       }
     }
 
     function openDeposit() {
-      document.getElementById('depositPhone').value = currentUser.phone;
-      document.getElementById('depositPopup').style.display = 'flex';
-    }
+        if(!currentUser) return;
+        document.getElementById('depositPhone').value = currentUser.phone;
+        document.getElementById('depositCurrentBalance').innerText = `KSH ${parseFloat(currentUser.balance).toFixed(2)}`;
+        document.getElementById('depositPopup').style.display = 'flex';
+        document.getElementById('depositSuccess').style.display = 'none';
+        document.getElementById('depositError').style.display = 'none';
+        document.getElementById('depositSpinner').style.display = 'none';
+        document.getElementById('submitDepositBtn').style.display = 'block';
+      }
 
     function openWithdraw() {
-      document.getElementById('withdrawPhone').value = currentUser.phone;
-      document.getElementById('withdrawPopup').style.display = 'flex';
-    }
+        if(!currentUser) return;
+        document.getElementById('withdrawPhone').value = currentUser.phone;
+        document.getElementById('withdrawCurrentBalance').innerText = `KSH ${parseFloat(currentUser.balance).toFixed(2)}`;
+        document.getElementById('withdrawPopup').style.display = 'flex';
+        document.getElementById('withdrawSuccess').style.display = 'none';
+        document.getElementById('withdrawError').style.display = 'none';
+        document.getElementById('withdrawSpinner').style.display = 'none';
+        document.getElementById('submitWithdrawBtn').style.display = 'block';
+      }
 
     async function submitDeposit() {
-      const amount = document.getElementById('depositAmount').value;
-      if (!amount || amount < 1) { showNotification("Minimum deposit is KSH 1", "error"); return; }
-      
-      try {
-        const res = await fetch(`${BACKEND_URL}/pay`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ phone: currentUser.phone, amount })
-        });
-        const data = await res.json();
-        if (data.success) {
-          showNotification("STK Push sent to your phone!");
-          document.getElementById('depositPopup').style.display = 'none';
-        } else {
-          showNotification(data.error || "Failed to initiate deposit", "error");
-        }
-      } catch (e) { showNotification("Network error", "error"); }
-    }
+        const amount = document.getElementById('depositAmount').value;
+        const errorEl = document.getElementById('depositError');
+        const successEl = document.getElementById('depositSuccess');
+        const spinner = document.getElementById('depositSpinner');
+        const btn = document.getElementById('submitDepositBtn');
 
-    async function submitWithdraw() {
-      const amount = document.getElementById('withdrawAmount').value;
-      if (!amount || amount < 100) { showNotification("Minimum withdrawal is KSH 100", "error"); return; }
-      if (amount > currentUser.balance) { showNotification("Insufficient balance", "error"); return; }
+        if (!amount || amount < 1) { errorEl.innerText = "Min deposit is KSH 1"; errorEl.style.display = 'block'; return; }
 
-      try {
-        const res = await fetch(`${BACKEND_URL}/withdraw`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ phone: currentUser.phone, amount })
-        });
-        const data = await res.json();
-        if (data.success) {
-          showNotification("Withdrawal successful!");
-          currentUser.balance = data.balance;
-          localStorage.setItem('swiftcrash_user', JSON.stringify(currentUser));
-          updateUI();
-          fetchTransactions();
-          document.getElementById('withdrawPopup').style.display = 'none';
-        } else {
-          showNotification(data.error || "Withdrawal failed", "error");
+        errorEl.style.display = 'none';
+        spinner.style.display = 'block';
+        btn.style.display = 'none';
+
+        try {
+          const res = await fetch(`${BACKEND_URL}/pay`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ phone: currentUser.phone, amount })
+          });
+          const data = await res.json();
+          spinner.style.display = 'none';
+          
+          if (data.success) {
+            successEl.innerHTML = `STK sent. Waiting for payment confirmation... <span class="spinner" style="display:inline-block; width:15px; height:15px; margin:0 0 -3px 5px; border-width:2px;"></span>`;
+            successEl.style.display = 'block';
+
+            const reference = data.reference;
+
+            const checkInterval = setInterval(async () => {
+              try {
+                const receiptRes = await fetch(`${BACKEND_URL}/receipt/${reference}`);
+                const receiptData = await receiptRes.json();
+
+                if (receiptData.success) {
+                  const status = receiptData.receipt.status;
+
+                  if (status === "success" || status === "processing") {
+                    clearInterval(checkInterval);
+
+                    currentUser.balance = parseFloat(currentUser.balance) + parseFloat(amount);
+                    localStorage.setItem('swiftcrash_user', JSON.stringify(currentUser));
+                    updateUI();
+                    document.getElementById('depositCurrentBalance').innerText = `KSH ${parseFloat(currentUser.balance).toFixed(2)}`;
+                    
+                    successEl.innerHTML = `Payment confirmed ✅ Updating balance... <span class="spinner" style="display:inline-block; width:15px; height:15px; margin:0 0 -3px 5px; border-width:2px;"></span>`;
+                    
+                    const oldBalance = currentUser.balance - parseFloat(amount);
+                    let attempts = 0;
+                    const checkBalanceAndUpdate = async () => {
+                       attempts++;
+                       await refreshBalanceSilently();
+                       if (currentUser.balance > oldBalance || attempts > 60) {
+                          clearInterval(balancePoll);
+                          if (currentUser.balance > oldBalance) {
+                             playSound('deposit');
+                             successEl.innerHTML = `<div style="display:flex; flex-direction:column; align-items:center;"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="animate-bounce"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg><span style="margin-top:10px;">Balance updated successfully!</span></div>`;
+                             document.getElementById('depositCurrentBalance').innerText = `KSH ${parseFloat(currentUser.balance).toFixed(2)}`;
+                             fetchTransactions();
+                             setTimeout(() => {
+                                document.getElementById('depositPopup').style.display = 'none';
+                                btn.style.display = 'block';
+                             }, 1000);
+                          } else {
+                             successEl.innerHTML = "Taking longer than usual. Balance will update shortly.";
+                             setTimeout(() => {
+                                document.getElementById('depositPopup').style.display = 'none';
+                                btn.style.display = 'block';
+                             }, 1500);
+                          }
+                       }
+                    };
+                    const balancePoll = setInterval(checkBalanceAndUpdate, 1000);
+                    checkBalanceAndUpdate();
+
+                  }
+
+                  if (status === "cancelled" || status === "error" || status === "stk_failed") {
+                    clearInterval(checkInterval);
+                    errorEl.innerText = "Payment failed or cancelled.";
+                    errorEl.style.display = 'block';
+                    btn.style.display = 'block';
+                    successEl.style.display = 'none';
+                  }
+                }
+              } catch (e) {
+                console.log("Waiting for callback confirmation...");
+              }
+            }, 4000);
+          } else {
+            errorEl.innerText = "Failed: " + (data.error || "Could not send STK Push");
+            errorEl.style.display = 'block';
+            btn.style.display = 'block';
+            successEl.style.display = 'none';
+          }
+        } catch(err) {
+          spinner.style.display = 'none';
+          errorEl.innerText = "Network error connecting to payment gateway";
+          errorEl.style.display = 'block';
+          btn.style.display = 'block';
         }
-      } catch (e) { showNotification("Network error", "error"); }
-    }
-  </script>
+      }
+
+      async function submitWithdraw() {
+        const amount = document.getElementById('withdrawAmount').value;
+        const errorEl = document.getElementById('withdrawError');
+        const successEl = document.getElementById('withdrawSuccess');
+        const spinner = document.getElementById('withdrawSpinner');
+        const btn = document.getElementById('submitWithdrawBtn');
+
+        if (!amount || amount < 100) { errorEl.innerText = "Min withdrawal is KSH 100"; errorEl.style.display = 'block'; return; }
+        if (parseFloat(amount) > parseFloat(currentUser.balance)) { errorEl.innerText = "Insufficient balance"; errorEl.style.display = 'block'; return; }
+
+        errorEl.style.display = 'none';
+        spinner.style.display = 'block';
+        btn.style.display = 'none';
+
+        try {
+          const res = await fetch(`${BACKEND_URL}/withdraw`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ phone: currentUser.phone, amount })
+          });
+          const data = await res.json();
+          spinner.style.display = 'none';
+
+          if (data.success) {
+            currentUser.balance = parseFloat(data.balance);
+            localStorage.setItem('swiftcrash_user', JSON.stringify(currentUser));
+            updateUI();
+            fetchTransactions();
+            
+            playSound('deposit');
+            successEl.innerHTML = `<div style="display:flex; flex-direction:column; align-items:center;"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="animate-bounce"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg><span style="margin-top:10px;">Withdrawal successful! Balance updated.</span></div>`;
+            document.getElementById('withdrawCurrentBalance').innerText = `KSH ${parseFloat(currentUser.balance).toFixed(2)}`;
+            showNotification("Withdrawal successful!", "success");
+            
+            setTimeout(() => {
+              document.getElementById('withdrawPopup').style.display = 'none';
+              btn.style.display = 'block';
+              successEl.innerHTML = '';
+            }, 2000);
+          } else {
+            errorEl.innerText = data.error || "Withdrawal failed";
+            errorEl.style.display = 'block';
+            btn.style.display = 'block';
+            showNotification(data.error || "Withdrawal failed", "error");
+          }
+        } catch (err) {
+          spinner.style.display = 'none';
+          errorEl.innerText = "Network error. Try again.";
+          errorEl.style.display = 'block';
+          btn.style.display = 'block';
+          showNotification("Network error. Try again.", "error");
+        }
+      }
+    </script>
 </body>
-</html>
+  </html>
