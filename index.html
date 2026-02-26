@@ -158,7 +158,7 @@
         </div>
       </div>
       
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; cursor:pointer; font-size:14px;" onclick="window.location.href='Menu.html'">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; cursor:pointer; font-size:14px;" onclick="openProfilePopup(); toggleHamburger();">
         <span>Profile</span>
         <div class="profile-icon" id="profileIcon" style="display:block; background:none; padding:0;">👤</div>
       </div>
@@ -640,10 +640,215 @@
     </div>
   </div>
 
+  <!-- PROFILE POPUP -->
+  <div class="popup-overlay" id="profilePopup">
+    <div class="popup-content">
+      <span class="popup-close" onclick="document.getElementById('profilePopup').style.display='none'">×</span>
+      <div style="text-align:center; margin-bottom:15px;">
+        <div style="font-size:48px;">👤</div>
+        <h3 style="margin:5px 0 0 0;" id="profileUsername">Username</h3>
+        <p style="margin:0; color:#9ca3af; font-size:14px;" id="profilePhone">254xxx</p>
+      </div>
+      <button class="btn-submit" style="background:#3b82f6; margin-bottom:10px;" onclick="openChangePin()">Change PIN</button>
+      <button class="btn-submit" style="background:#8b5cf6; margin-bottom:10px;" onclick="openTransactions()">Transactions</button>
+      <button class="btn-submit" style="background:#ef4444; margin-bottom:10px;" onclick="doLogout()">Logout</button>
+      <button class="btn-submit" style="background:transparent; border:1px solid #ef4444; color:#ef4444;" onclick="openDeleteAccount()">Delete Account</button>
+    </div>
+  </div>
+
+  <!-- CHANGE PIN POPUP -->
+  <div class="popup-overlay" id="changePinPopup">
+    <div class="popup-content">
+      <span class="popup-close" onclick="document.getElementById('changePinPopup').style.display='none'">×</span>
+      <h2 style="margin-top:0;">Change PIN</h2>
+      <div class="form-group">
+        <label>Old PIN</label>
+        <input type="password" class="form-control" id="oldPin" maxlength="6">
+      </div>
+      <div class="form-group">
+        <label>New PIN (6 digits)</label>
+        <input type="password" class="form-control" id="newPin" maxlength="6">
+      </div>
+      <div class="form-group">
+        <label>Confirm New PIN</label>
+        <input type="password" class="form-control" id="confirmNewPin" maxlength="6">
+      </div>
+      <div class="error-msg" id="changePinError"></div>
+      <div class="success-msg" id="changePinSuccess"></div>
+      <button class="btn-submit" onclick="submitChangePin()">Confirm New PIN</button>
+    </div>
+  </div>
+
+  <!-- TRANSACTIONS POPUP -->
+  <div class="popup-overlay" id="transactionsPopup">
+    <div class="popup-content" style="max-width:500px;">
+      <span class="popup-close" onclick="document.getElementById('transactionsPopup').style.display='none'">×</span>
+      <h2 style="margin-top:0;">My Transactions</h2>
+      <div id="txListContainer" style="max-height:300px; overflow-y:auto; background:#111827; padding:10px; border-radius:5px;">
+        <p style="text-align:center; color:#9ca3af;">Loading...</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- DELETE ACCOUNT POPUP -->
+  <div class="popup-overlay" id="deleteAccountPopup">
+    <div class="popup-content">
+      <span class="popup-close" onclick="document.getElementById('deleteAccountPopup').style.display='none'">×</span>
+      <h2 style="margin-top:0; color:#ef4444;">Delete Account</h2>
+      <p style="font-size:12px; color:#9ca3af; margin-bottom:15px;">Warning: This action is permanent and cannot be undone.</p>
+      <div class="form-group">
+        <label>Username</label>
+        <input type="text" class="form-control" id="deleteUsername" readonly style="color:#9ca3af; background:#1f2937;">
+      </div>
+      <div class="form-group">
+        <label>Phone Number</label>
+        <input type="text" class="form-control" id="deletePhone" readonly style="color:#9ca3af; background:#1f2937;">
+      </div>
+      <div class="form-group">
+        <label>Enter PIN to Confirm</label>
+        <input type="password" class="form-control" id="deletePin" maxlength="6">
+      </div>
+      <div class="error-msg" id="deleteError"></div>
+      <button class="btn-submit" style="background:#ef4444;" onclick="submitDeleteAccount()">Delete My Account</button>
+    </div>
+  </div>
+
   <script>
     // BACKEND CONFIGURATION
     const BACKEND_URL = "https://swiftaviator-server.onrender.com"; // Change to your live backend URL
     
+    // PROFILE SCRIPTS
+    function openProfilePopup() {
+      if(!currentUser) return;
+      document.getElementById('profileUsername').innerText = currentUser.username;
+      document.getElementById('profilePhone').innerText = currentUser.phone;
+      document.getElementById('profilePopup').style.display = 'flex';
+    }
+
+    function openChangePin() {
+      document.getElementById('profilePopup').style.display = 'none';
+      document.getElementById('changePinError').style.display = 'none';
+      document.getElementById('changePinSuccess').style.display = 'none';
+      document.getElementById('oldPin').value = '';
+      document.getElementById('newPin').value = '';
+      document.getElementById('confirmNewPin').value = '';
+      document.getElementById('changePinPopup').style.display = 'flex';
+    }
+
+    async function submitChangePin() {
+      const oldPin = document.getElementById('oldPin').value;
+      const newPin = document.getElementById('newPin').value;
+      const confirmPin = document.getElementById('confirmNewPin').value;
+      const errEl = document.getElementById('changePinError');
+      const succEl = document.getElementById('changePinSuccess');
+      
+      errEl.style.display = 'none';
+      succEl.style.display = 'none';
+
+      if (!oldPin || !newPin || !confirmPin) { errEl.innerText = "Fill all fields"; errEl.style.display='block'; return; }
+      if (newPin !== confirmPin) { errEl.innerText = "New PINs do not match"; errEl.style.display='block'; return; }
+      if (newPin.length !== 6) { errEl.innerText = "PIN must be 6 digits"; errEl.style.display='block'; return; }
+
+      try {
+        const res = await fetch(`${BACKEND_URL}/change-pin`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ phone: currentUser.phone, oldPin, newPin })
+        });
+        const data = await res.json();
+        if(data.success) {
+          succEl.innerText = "PIN changed successfully!";
+          succEl.style.display = 'block';
+          currentUser.pin = newPin;
+          localStorage.setItem('swiftcrash_user', JSON.stringify(currentUser));
+          setTimeout(() => document.getElementById('changePinPopup').style.display='none', 1500);
+        } else {
+          errEl.innerText = data.error || "Failed to change PIN";
+          errEl.style.display = 'block';
+        }
+      } catch(e) { errEl.innerText="Network error"; errEl.style.display='block'; }
+    }
+
+    async function openTransactions() {
+      document.getElementById('profilePopup').style.display = 'none';
+      document.getElementById('transactionsPopup').style.display = 'flex';
+      const container = document.getElementById('txListContainer');
+      container.innerHTML = '<p style="text-align:center; color:#9ca3af;">Loading...</p>';
+
+      try {
+        const res = await fetch(`${BACKEND_URL}/transactions-history`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ phone: currentUser.phone })
+        });
+        const data = await res.json();
+        if(data.success) {
+          if(data.transactions.length === 0) {
+            container.innerHTML = '<p style="text-align:center; color:#9ca3af;">No transactions found.</p>';
+          } else {
+            container.innerHTML = `<table style="width:100%; font-size:12px; border-collapse:collapse; text-align:left;">
+              <thead><tr style="border-bottom:1px solid #374151; color:#9ca3af;">
+                <th style="padding:5px;">Type</th><th style="padding:5px;">Amount</th><th style="padding:5px;">Status</th><th style="padding:5px;">Date</th>
+              </tr></thead><tbody>` + 
+              data.transactions.map(t => `
+                <tr style="border-bottom:1px solid #1f2937;">
+                  <td style="padding:8px; text-transform:capitalize; color:${t.type==='deposit'?'#22c55e':'#f59e0b'};">${t.type}</td>
+                  <td style="padding:8px;">KSH ${parseFloat(t.amount).toFixed(2)}</td>
+                  <td style="padding:8px;">${t.status}</td>
+                  <td style="padding:8px;">${new Date(t.created_at).toLocaleString()}</td>
+                </tr>
+              `).join('') + `</tbody></table>`;
+          }
+        } else {
+          container.innerHTML = `<p style="text-align:center; color:#ef4444;">Failed to load transactions</p>`;
+        }
+      } catch(e) { container.innerHTML = `<p style="text-align:center; color:#ef4444;">Network error</p>`; }
+    }
+
+    function doLogout() {
+      localStorage.removeItem('swiftcrash_user');
+      currentUser = null;
+      document.getElementById('profilePopup').style.display = 'none';
+      showNotification("Logged out successfully");
+      initApp();
+    }
+
+    function openDeleteAccount() {
+      document.getElementById('profilePopup').style.display = 'none';
+      document.getElementById('deleteUsername').value = currentUser.username;
+      document.getElementById('deletePhone').value = currentUser.phone;
+      document.getElementById('deletePin').value = '';
+      document.getElementById('deleteError').style.display = 'none';
+      document.getElementById('deleteAccountPopup').style.display = 'flex';
+    }
+
+    async function submitDeleteAccount() {
+      const pin = document.getElementById('deletePin').value;
+      const errEl = document.getElementById('deleteError');
+      errEl.style.display = 'none';
+
+      if(!pin) { errEl.innerText="Please enter your PIN"; errEl.style.display='block'; return; }
+
+      try {
+        const res = await fetch(`${BACKEND_URL}/delete-account`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ phone: currentUser.phone, pin })
+        });
+        const data = await res.json();
+        if(data.success) {
+          showNotification("Account deleted successfully");
+          document.getElementById('deleteAccountPopup').style.display = 'none';
+          localStorage.removeItem('swiftcrash_user');
+          currentUser = null;
+          initApp();
+        } else {
+          errEl.innerText = data.error || "Failed to delete account";
+          errEl.style.display = 'block';
+        }
+      } catch(e) { errEl.innerText="Network error"; errEl.style.display='block'; }
+    }
+
     // STATE
     let currentUser = JSON.parse(localStorage.getItem('swiftcrash_user'));
     
