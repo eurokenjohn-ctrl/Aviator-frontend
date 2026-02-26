@@ -158,7 +158,7 @@
         <span id="balanceText">KSH 0.00</span>
         <svg id="refreshIcon" onclick="manualRefresh()" style="cursor:pointer; transition: transform 0.5s;" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 21v-5h5"/></svg>
       </div>
-      <div id="hamburgerMenuIcon" style="display:none; cursor:pointer; margin-left:10px;" onclick="toggleHamburger()">
+      <div id="hamburgerMenuIcon" style="display:none; cursor:pointer; margin-left:10px; position:relative; z-index:101;" onclick="toggleHamburger()">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
       </div>
     </div>
@@ -184,7 +184,7 @@
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; border-top:1px solid #374151; padding-top:10px; font-size:14px;">
         <span>Sound</span>
         <label class="switch" style="transform: scale(0.8); margin:0;">
-          <input type="checkbox" id="soundSwitch" checked>
+          <input type="checkbox" id="soundSwitch">
           <span class="slider"></span>
         </label>
       </div>
@@ -225,14 +225,18 @@
     let hamburgerTimeout;
     function toggleHamburger() {
       const drop = document.getElementById('hamburgerDropdown');
+      const icon = document.getElementById('hamburgerMenuIcon');
       if (drop.style.display === 'block') {
          drop.style.display = 'none';
+         icon.style.color = 'white';
          clearTimeout(hamburgerTimeout);
       } else {
          drop.style.display = 'block';
+         icon.style.color = '#f97316'; // Change color when open
          // close after 20 secs
          hamburgerTimeout = setTimeout(() => {
              drop.style.display = 'none';
+             icon.style.color = 'white';
          }, 20000);
       }
     }
@@ -251,10 +255,11 @@
       if(isDark) {
          document.body.style.backgroundColor = '#09090b';
          document.body.style.color = 'white';
+         document.querySelectorAll('.aviator-box, .controls, .odds-history, .header, .footer, .popup-content, .share-dropdown').forEach(c => c.style.background = '#111827');
       } else {
-         document.body.style.backgroundColor = '#f3f4f6';
-         document.body.style.color = 'black';
-         // more styling could be added for fully comprehensive light mode
+         document.body.style.backgroundColor = '#ffffff';
+         document.body.style.color = '#111827';
+         document.querySelectorAll('.aviator-box, .controls, .odds-history, .header, .footer, .popup-content, .share-dropdown').forEach(c => c.style.background = '#f9fafb');
       }
     }
     
