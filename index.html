@@ -122,6 +122,50 @@
     .toast-success { background: linear-gradient(135deg, #16a34a, #22c55e); }
     .toast-error { background: linear-gradient(135deg, #dc2626, #ef4444); }
 
+  
+    /* Cloud Animation CSS */
+    .clouds-bg {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: url('https://www.transparenttextures.com/patterns/stardust.png');
+      background-size: cover;
+      opacity: 0.1;
+      z-index: 1;
+    }
+    .clouds-bg-animated {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: transparent;
+      z-index: 1;
+      overflow: hidden;
+    }
+    .cloud {
+      position: absolute;
+      background: white;
+      border-radius: 50%;
+      opacity: 0.2;
+      filter: blur(8px);
+      animation: moveClouds linear infinite;
+    }
+    @keyframes moveClouds {
+      from { transform: translateX(100vw); }
+      to { transform: translateX(-200px); }
+    }
+    
+    .demo-toggle-container {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      background: #1f2937;
+      padding: 5px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: bold;
+    }
+    .demo-mode-active {
+      border: 2px solid #f59e0b !important;
+    }
+
   </style>
 </head>
 <body>
@@ -135,7 +179,12 @@
     <div style="width: 200px; height: 5px; background: #333; border-radius: 5px; margin-top: 20px; overflow: hidden;">
       <div id="progressBar" style="width: 0%; height: 100%; background: #f59e0b; transition: width 0.1s;"></div>
     </div>
-    <p id="loadingText" style="margin-top: 15px; color: #9ca3af; font-size: 14px;">Preparing loading...</p>
+    
+    <p id="loadingText" style="margin-top: 15px; color: #9ca3af; font-size: 14px; display: flex; align-items: center; gap: 8px;">
+      <span class="spinner" style="display:inline-block; border-left-color: #f97316; width: 16px; height: 16px; border-width: 2px;"></span>
+      Connecting to server<span id="dots">...</span>
+    </p>
+
   </div>
 
   <!-- Top Bar -->
@@ -167,6 +216,16 @@
   <div class="header">
     <div class="logo"><span style="color:#facc15">👑</span> Swiftcrash</div>
     <div class="header-actions">
+
+      <div class="demo-toggle-container">
+        <span id="modeText" style="color:#9ca3af;">Real</span>
+        <label class="switch" style="width:30px; height:16px;">
+          <input type="checkbox" id="demoSwitch" onchange="toggleDemoMode()">
+          <span class="slider" style="border-radius:16px;"></span>
+        </label>
+        <span id="demoBalanceDisplay" style="color:#f59e0b; display:none;">1000 KSH</span>
+      </div>
+
       <button class="btn-login-header" id="headerLoginBtn" onclick="openAuth('login')">Login</button>
       <div class="balance" id="headerBalance" style="display:none; align-items:center; gap:5px;">
         <span id="balanceText">KSH 0.00</span>
@@ -347,6 +406,14 @@
 
   <!-- Aviator Area -->
   <div class="aviator-box" id="aviatorBox">
+    
+    <div class="clouds-bg"></div>
+    <div class="clouds-bg-animated">
+      <div class="cloud" style="width: 100px; height: 40px; top: 20%; animation-duration: 4s;"></div>
+      <div class="cloud" style="width: 150px; height: 60px; top: 50%; animation-duration: 6s; opacity: 0.15;"></div>
+      <div class="cloud" style="width: 80px; height: 30px; top: 80%; animation-duration: 3s; opacity: 0.25;"></div>
+    </div>
+
     <div class="jackpot-banner">🏆 DAILY JACKPOT 1500X</div>
     <div class="multiplier-display" id="multiplier">1.00x</div>
     <div class="flew-away-text" id="flewAwayText">FLEW AWAY!</div>
@@ -1112,7 +1179,16 @@
 
     function initApp() {
       updateUIForAuth();
-      if (currentUser) {
+      
+          if (isDemoMode) {
+            btnBig.style.background = '#f59e0b';
+            btnBig.style.color = 'white';
+            btnBig.innerHTML = 'DEMO BET';
+            btnBig.onclick = placeBet;
+            btnBig.style.display = 'block';
+          }
+
+          if (currentUser) {
         refreshBalanceSilently();
       }
       startGameLoop();
