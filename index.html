@@ -143,10 +143,14 @@
       <button style="background:#3b82f6; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;" onclick="copyReferral()">Copy</button>
     </div>
     <div class="social-share">
-      <a href="#" class="social-btn" style="background:#25D366;">WhatsApp</a>
-      <a href="#" class="social-btn" style="background:#1877F2;">Facebook</a>
-      <a href="#" class="social-btn" style="background:#1DA1F2;">Twitter</a>
+      <a href="#" class="social-btn" id="waShare" style="background:#25D366;" target="_blank">WhatsApp</a>
+      <a href="#" class="social-btn" id="fbShare" style="background:#1877F2;" target="_blank">Facebook</a>
+      <a href="#" class="social-btn" id="twShare" style="background:#1DA1F2;" target="_blank">Twitter</a>
     </div>
+    <div id="referredByContainer" style="margin-top: 15px; font-size: 14px; display: none;">
+      REFERRED BY: <span id="referredByUsername" style="color: #f59e0b; font-weight: bold;"></span>
+    </div>
+    <button style="width: 100%; margin-top: 15px; padding: 10px; background: #374151; color: white; border: none; border-radius: 5px; font-weight: bold; cursor: pointer;" onclick="openReferralHistory()">REFERRAL HISTORY</button>
   </div>
 
   <!-- Header -->
@@ -809,10 +813,99 @@
     </div>
   </div>
 
+  <!-- Referral History Popup -->
+  <div class="popup-overlay" id="referralHistoryPopup" onclick="if(event.target===this) closeReferralHistory()">
+    <div class="popup-content">
+      <span class="popup-close" onclick="closeReferralHistory()">×</span>
+      <h2 style="margin-top:0;">Refer & Earn ✨</h2>
+      
+      <div style="background: #16a34a; padding: 15px; border-radius: 10px; margin-bottom: 15px;">
+        <h3 style="margin: 0 0 5px 0; color: white;">5% Commission Rate</h3>
+        <p style="margin: 0; font-size: 14px; color: #dcfce7;">Earn on Every Deposit!</p>
+        <p style="margin: 5px 0 0 0; font-size: 12px; color: #dcfce7;">Share your link, friends deposit, you earn. It's that simple! 💰</p>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 15px; text-align: center;">
+        <div style="background: #1f2937; padding: 10px; border-radius: 8px;">
+          <div style="font-size: 18px; font-weight: bold; color: white;" id="refCount">0</div>
+          <div style="font-size: 10px; color: #9ca3af;">REFERRALS</div>
+        </div>
+        <div style="background: #1f2937; padding: 10px; border-radius: 8px;">
+          <div style="font-size: 18px; font-weight: bold; color: #22c55e;" id="refActive">0</div>
+          <div style="font-size: 10px; color: #9ca3af;">ACTIVE</div>
+        </div>
+        <div style="background: #1f2937; padding: 10px; border-radius: 8px;">
+          <div style="font-size: 18px; font-weight: bold; color: #f59e0b;" id="refDeposits">0</div>
+          <div style="font-size: 10px; color: #9ca3af;">DEPOSITS (KSH)</div>
+        </div>
+      </div>
+
+      <div style="background: #1f2937; padding: 15px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+        <div>
+          <div style="font-size: 12px; color: #9ca3af;">Total Earned</div>
+          <div style="font-size: 12px; color: #22c55e; font-weight: bold;">LIFETIME REWARDS</div>
+        </div>
+        <div style="text-align: right;">
+          <div style="font-size: 12px; color: #9ca3af;">KSH</div>
+          <div style="font-size: 24px; font-weight: bold; color: white;" id="refEarned">0</div>
+        </div>
+      </div>
+      
+      <div id="referralsList" style="max-height: 150px; overflow-y: auto;">
+        <div style="text-align:center; color:#9ca3af; font-size:12px; margin-top:20px;">Loading...</div>
+      </div>
+    </div>
+  </div>
+
   <script>
     // BACKEND CONFIGURATION
     const BACKEND_URL = "https://swiftaviator-server.onrender.com"; // Change to your live backend URL
     
+    // REFERRAL LOGIC
+    function checkUrlReferral() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const ref = urlParams.get('ref');
+      if (ref) {
+        localStorage.setItem('swiftcrash_ref', ref);
+      }
+    }
+    checkUrlReferral();
+
+    async function openReferralHistory() {
+      if(!currentUser) return;
+      document.getElementById('referralHistoryPopup').style.display = 'flex';
+      
+      try {
+        const res = await fetch(`${BACKEND_URL}/api/referrals?phone=${currentUser.phone}`);
+        const data = await res.json();
+        
+        if (data.success) {
+          document.getElementById('refCount').innerText = data.referrals.length;
+          document.getElementById('refActive').innerText = data.active_referrals;
+          document.getElementById('refDeposits').innerText = data.total_deposits;
+          document.getElementById('refEarned').innerText = data.total_earned;
+          
+          const list = document.getElementById('referralsList');
+          if (data.referrals.length === 0) {
+            list.innerHTML = '<div style="text-align:center; color:#9ca3af; font-size:12px; margin-top:20px;">No referrals yet</div>';
+          } else {
+            list.innerHTML = data.referrals.map(r => `
+              <div style="background:#111827; padding:10px; border-radius:5px; margin-bottom:5px; display:flex; justify-content:space-between;">
+                <span style="color:white; font-size:14px;">${r.username}</span>
+                <span style="color:#9ca3af; font-size:12px;">${new Date(r.created_at).toLocaleDateString()}</span>
+              </div>
+            `).join('');
+          }
+        }
+      } catch(e) {
+        document.getElementById('referralsList').innerHTML = '<div style="text-align:center; color:#ef4444; font-size:12px; margin-top:20px;">Error loading referrals</div>';
+      }
+    }
+
+    function closeReferralHistory() {
+      document.getElementById('referralHistoryPopup').style.display = 'none';
+    }
+
     // PROFILE SCRIPTS
     function openProfilePopup() {
       if(!currentUser) return;
@@ -1035,7 +1128,21 @@
         betBtn.style.display = 'block';
         
         // Update share link text
-        document.getElementById('referralLinkText').innerText = `https://swiftcrash.com/?ref=${currentUser.username}`;
+        const shareUrl = `https://swiftcrash.com/?ref=${currentUser.username}`;
+        document.getElementById('referralLinkText').innerText = shareUrl;
+        
+        // Update social buttons
+        document.getElementById('waShare').href = `https://api.whatsapp.com/send?text=Join Swiftcrash using my link: ${encodeURIComponent(shareUrl)}`;
+        document.getElementById('fbShare').href = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`;
+        document.getElementById('twShare').href = `https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=Join Swiftcrash!`;
+
+        // Update Referred By
+        if (currentUser.referral_code) {
+           document.getElementById('referredByContainer').style.display = 'block';
+           document.getElementById('referredByUsername').innerText = currentUser.referral_code;
+        } else {
+           document.getElementById('referredByContainer').style.display = 'none';
+        }
         
         // Check notifications
         fetchNotifications();
@@ -1064,6 +1171,13 @@
     function openAuth(type) {
       document.getElementById('authPopup').style.display = 'flex';
       toggleAuthForm(type);
+      
+      if (type === 'signup') {
+        const storedRef = localStorage.getItem('swiftcrash_ref');
+        if (storedRef) {
+          document.getElementById('signupRef').value = storedRef;
+        }
+      }
     }
     function closeAuth() {
       document.getElementById('authPopup').style.display = 'none';
