@@ -1663,6 +1663,7 @@
                 if (betStatus === 'PLACED') {
                    betStatus = 'ACTIVE';
                    updateBetBtn('CASHOUT');
+                   refreshBalanceSilently(); // Fetch deducted balance
                 } else if (betStatus === 'NONE' || betStatus === 'CASHOUT') {
                    updateBetBtnDisabled(true);
                 }
@@ -1956,8 +1957,8 @@
       div.innerText = val;
       let num = parseFloat(val);
       if(num < 2) div.style.color = '#ef4444';
-      else if(num < 10) div.style.color = '#8b5cf6';
-      else div.style.color = '#eab308';
+      else if(num < 10) div.style.color = '#22c55e'; // Green for higher crash
+      else div.style.color = '#eab308'; // Gold for very high crash
       hist.prepend(div);
       if(hist.children.length > 15) hist.removeChild(hist.lastChild);
     }
