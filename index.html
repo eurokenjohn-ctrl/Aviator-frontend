@@ -1574,7 +1574,11 @@
         if (betStatus === 'ACTIVE' && document.getElementById('autoSwitch').checked) {
            const autoVal = parseFloat(document.getElementById('autoCashoutVal').value);
            if (localMultiplier >= autoVal) {
-             performCashout();
+             betStatus = 'CASHOUT';
+             updateBetBtn('WAITING_CASHOUT');
+             playSound('cashout');
+             showNotification(`Auto Cashed out ${autoVal.toFixed(2)}x!`, 'success');
+             setTimeout(refreshBalanceSilently, 1000);
            }
         }
 
@@ -1611,8 +1615,12 @@
              const progressFill = document.getElementById('nextRoundFill');
              if(countdownContainer) countdownContainer.style.display = 'block';
              
-             if(betStatus === 'PLACED') updateBetBtn('CANCEL');
-             else updateBetBtn('BET');
+             if(betStatus === 'PLACED' || betStatus === 'PLACED_WAITING') {
+                 betStatus = 'PLACED';
+                 updateBetBtn('CANCEL');
+             } else {
+                 updateBetBtn('BET');
+             }
              
              if (data.time !== undefined && countdownTimer) {
                 countdownTimer.innerText = data.time;
@@ -1686,10 +1694,11 @@
                 currentBetId = null;
              } else if (betStatus === 'CASHOUT') {
                 betStatus = 'NONE';
+                currentBetId = null;
              }
              
              if (betStatus === 'PLACED_WAITING') {
-                placeServerBet(activeBetAmount);
+                updateBetBtn('CANCEL_WAITING');
              } else {
                 updateBetBtn('BET');
              }
@@ -1706,11 +1715,15 @@
       }
       betStatus = 'PROCESSING';
       updateBetBtn('PROCESSING_BET');
+      
+      const isAuto = document.getElementById('autoSwitch') && document.getElementById('autoSwitch').checked;
+      const autoVal = isAuto ? parseFloat(document.getElementById('autoCashoutVal').value) : null;
+      
       try {
          const res = await fetch(`${BACKEND_URL}/bet`, {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({phone: currentUser.phone, amount: amount})
+            body: JSON.stringify({phone: currentUser.phone, amount: amount, autoCashout: autoVal})
          });
          const data = await res.json();
          if (data.success) {
@@ -1719,8 +1732,13 @@
             currentBetId = data.betId;
             localStorage.setItem('swiftcrash_user', JSON.stringify(currentUser));
             updateUIForAuth();
-            betStatus = 'PLACED';
-            updateBetBtn('CANCEL');
+            if (gameState === 'WAITING') {
+               betStatus = 'PLACED';
+               updateBetBtn('CANCEL');
+            } else {
+               betStatus = 'PLACED_WAITING';
+               updateBetBtn('CANCEL_WAITING');
+            }
          } else {
             showNotification("Bet failed: " + data.error, "error");
             betStatus = 'NONE';
@@ -1776,18 +1794,17 @@
         } else if (betStatus === 'PLACED') {
           cancelServerBet();
         } else if (betStatus === 'PLACED_WAITING') {
-          betStatus = 'NONE';
-          updateBetBtn('BET');
+          cancelServerBet();
         }
       } else if (gameState === 'RUNNING' || gameState === 'CRASHED') {
         if (betStatus === 'NONE') {
           if(amt < 1) { alert('Min bet is 1'); return; }
           activeBetAmount = amt;
-          betStatus = 'PLACED_WAITING';
-          updateBetBtn('CANCEL_WAITING');
+          // Place bet for next round immediately
+          placeServerBet(amt);
         } else if (betStatus === 'PLACED_WAITING') {
-          betStatus = 'NONE';
-          updateBetBtn('BET');
+          // Cancel the pending bet
+          cancelServerBet();
         } else if (betStatus === 'ACTIVE') {
           performCashout();
         }
