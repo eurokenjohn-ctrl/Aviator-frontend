@@ -98,6 +98,16 @@
     input:checked + .slider { background-color: #22c55e; }
     input:checked + .slider:before { transform: translateX(20px); }
 
+    /* Hide number input arrows */
+    input[type=number]::-webkit-inner-spin-button, 
+    input[type=number]::-webkit-outer-spin-button { 
+      -webkit-appearance: none; 
+      margin: 0; 
+    }
+    input[type=number] {
+      -moz-appearance: textfield;
+    }
+
     /* Notification Bell */
     .notification-bell { position: relative; cursor: pointer; display: none; }
     .notification-badge { position: absolute; top: -5px; right: -5px; background: #ef4444; color: white; border-radius: 50%; width: 18px; height: 18px; font-size: 10px; font-weight: bold; display: flex; align-items: center; justify-content: center; }
@@ -1532,6 +1542,45 @@
     let w = 300, h = 250; // defaults
     let pathD = '';
     
+    let animationFrameId = null;
+    let gameStartTime = 0;
+    
+    function renderFrame() {
+        if (gameState !== 'RUNNING') return;
+        
+        let elapsedSec = (Date.now() - gameStartTime) / 1000;
+        let localMultiplier = Math.max(1.00, Math.exp(0.08 * elapsedSec));
+        
+        // Sync with server if we lag behind
+        if (localMultiplier < currentMultiplier) localMultiplier = currentMultiplier;
+        
+        multDisplay.innerText = localMultiplier.toFixed(2) + 'x';
+        
+        let maxMult = 10;
+        let t = Math.min(1, Math.log(localMultiplier) / Math.log(maxMult)); 
+        let x = 20 + t * (w - 70);
+        let y = (h - 20) - Math.pow(t, 0.7) * (h - 70);
+        
+        let nextT = Math.min(1, Math.log(localMultiplier + 0.1) / Math.log(maxMult));
+        let nextX = 20 + nextT * (w - 70);
+        let nextY = (h - 20) - Math.pow(nextT, 0.7) * (h - 70);
+        let angle = Math.atan2(nextY - y, nextX - x) * 180 / Math.PI;
+
+        plane.style.transform = `translate(${x}px, ${y}px) rotate(${angle}deg)`;
+        
+        pathD += ` L ${x} ${y}`;
+        if(document.getElementById('trailPath')) document.getElementById('trailPath').setAttribute('d', pathD);
+        
+        if (betStatus === 'ACTIVE' && document.getElementById('autoSwitch').checked) {
+           const autoVal = parseFloat(document.getElementById('autoCashoutVal').value);
+           if (localMultiplier >= autoVal) {
+             performCashout();
+           }
+        }
+
+        animationFrameId = requestAnimationFrame(renderFrame);
+    }
+    
     function initGameSSE() {
        if (gameEventSource) return;
        gameEventSource = new EventSource(`${BACKEND_URL}/api/stream`);
@@ -1547,6 +1596,10 @@
           }
           
           if (data.status === 'WAITING') {
+             if (animationFrameId) {
+                cancelAnimationFrame(animationFrameId);
+                animationFrameId = null;
+             }
              gameState = 'WAITING';
              multDisplay.style.display = 'none';
              flewAwayText.style.display = 'none';
@@ -1584,6 +1637,8 @@
              if (gameState !== 'RUNNING') {
                 playSound('fly');
                 gameState = 'RUNNING';
+                gameStartTime = Date.now(); // Start local timer
+                
                 multDisplay.style.display = 'block';
                 plane.style.display = 'block';
                 if(document.getElementById('trailSvg')) document.getElementById('trailSvg').style.display = 'block';
@@ -1603,35 +1658,19 @@
                 } else if (betStatus === 'NONE' || betStatus === 'CASHOUT') {
                    updateBetBtnDisabled(true);
                 }
+                
+                if (animationFrameId) cancelAnimationFrame(animationFrameId);
+                animationFrameId = requestAnimationFrame(renderFrame);
              }
              
-             currentMultiplier = data.multiplier;
-             multDisplay.innerText = currentMultiplier.toFixed(2) + 'x';
+             currentMultiplier = data.multiplier; // Sync from server
              if (betStatus === 'ACTIVE') updateBetBtn('CASHOUT'); // update cashout amount display
-             
-             if (betStatus === 'ACTIVE' && document.getElementById('autoSwitch').checked) {
-                const autoVal = parseFloat(document.getElementById('autoCashoutVal').value);
-                if (currentMultiplier >= autoVal) {
-                  performCashout();
-                }
-             }
-             
-             let maxMult = 10;
-             let t = Math.min(1, Math.log(currentMultiplier) / Math.log(maxMult)); 
-             let x = 20 + t * (w - 70);
-             let y = (h - 20) - Math.pow(t, 0.7) * (h - 70);
-             
-             let nextT = Math.min(1, Math.log(currentMultiplier + 0.1) / Math.log(maxMult));
-             let nextX = 20 + nextT * (w - 70);
-             let nextY = (h - 20) - Math.pow(nextT, 0.7) * (h - 70);
-             let angle = Math.atan2(nextY - y, nextX - x) * 180 / Math.PI;
-
-             plane.style.transform = `translate(${x}px, ${y}px) rotate(${angle}deg)`;
-             
-             pathD += ` L ${x} ${y}`;
-             if(document.getElementById('trailPath')) document.getElementById('trailPath').setAttribute('d', pathD);
           }
           else if (data.status === 'CRASHED') {
+             if (animationFrameId) {
+                cancelAnimationFrame(animationFrameId);
+                animationFrameId = null;
+             }
              if (gameState !== 'CRASHED') {
                 playSound('crash');
              }
@@ -1865,11 +1904,15 @@
 
     function adjustBet(val) {
       let input = document.getElementById('betAmount');
-      let newVal = parseFloat(input.value) + val;
-      if(newVal >= 1 && newVal <= 100000) {
-         input.value = newVal.toFixed(2);
-         updateBetButtonAmount();
-      }
+      let currentVal = parseFloat(input.value);
+      if (isNaN(currentVal)) currentVal = 0;
+      
+      let newVal = currentVal + val;
+      if(newVal < 1) newVal = 1;
+      if(newVal > 100000) newVal = 100000;
+      
+      input.value = newVal.toFixed(2);
+      updateBetButtonAmount();
     }
     function setBet(val) { 
       document.getElementById('betAmount').value = parseFloat(val).toFixed(2);
