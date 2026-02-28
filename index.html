@@ -52,10 +52,13 @@
     
     /* Aviator Area */
     .aviator-box { margin: 10px; border-radius: 10px; overflow: hidden; background: #000; position: relative; height: 250px; display: flex; justify-content: center; align-items: center; flex-direction: column; }
-    .jackpot-banner { position: absolute; top: 0; left: 0; right: 0; background: linear-gradient(90deg, #b45309, #f59e0b); text-align: center; padding: 5px; font-weight: bold; font-size: 12px; }
+    .aviator-box::before { content: ""; position: absolute; top: -150%; left: -150%; width: 400%; height: 400%; background: repeating-conic-gradient(from 0deg, #111 0deg 15deg, #1a1a1a 15deg 30deg); z-index: 0; animation: spinBg 60s linear infinite; animation-play-state: paused; }
+    .aviator-box.running::before { animation-play-state: running; }
+    @keyframes spinBg { 100% { transform: rotate(360deg); } }
+    .jackpot-banner { position: absolute; top: 0; left: 0; right: 0; background: linear-gradient(90deg, #b45309, #f59e0b); text-align: center; padding: 5px; font-weight: bold; font-size: 12px; z-index: 10; }
     .multiplier-display { font-size: 48px; font-weight: bold; color: white; z-index: 10; text-shadow: 0px 0px 10px rgba(0,0,0,0.8); }
-    .plane { position: absolute; top: 0; left: 0; width: 60px; height: 30px; margin-top:-15px; margin-left:-30px; z-index: 3; display: none; transition: transform 0.05s linear; }
-    .flew-away-text { color: #ef4444; font-size: 24px; font-weight: bold; display: none; margin-top: 10px; }
+    .plane { position: absolute; top: 0; left: 0; width: 60px; height: 30px; margin-top:-15px; margin-left:-30px; z-index: 3; display: none; }
+    .flew-away-text { color: #ef4444; font-size: 24px; font-weight: bold; display: none; margin-top: 10px; z-index: 10; }
     
     /* Toggle Tabs */
     .bet-tabs { display: flex; background: #1f2937; border-radius: 20px; padding: 4px; margin-bottom: 10px; width: 100%; max-width: 200px; margin-left: auto; margin-right: auto; }
@@ -442,13 +445,17 @@
       </div>
     </div>
     <svg id="trailSvg" style="position:absolute; top:0; left:0; width:100%; height:100%; z-index:1; display:none;" preserveAspectRatio="none">
+      <defs>
+        <linearGradient id="trailGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="rgba(239, 68, 68, 0.5)" />
+            <stop offset="100%" stop-color="rgba(239, 68, 68, 0.0)" />
+        </linearGradient>
+      </defs>
+      <path id="trailFill" d="" fill="url(#trailGrad)" />
       <path id="trailPath" d="" fill="none" stroke="#ef4444" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
     </svg>
     <div class="plane" id="plane">
-      <!-- Modern Jet Icon -->
-      <svg width="60" height="30" viewBox="0 0 512 512" fill="#ef4444" style="filter: drop-shadow(0px 4px 6px rgba(239, 68, 68, 0.6));" xmlns="http://www.w3.org/2000/svg">
-        <path d="M498.4 121.2c-7.4-8.8-19.4-12.8-30.8-10.4L322.2 144.6l-149.6-96.8c-6.8-4.4-15.4-5.6-22.8-3.2-7.4 2.4-13.4 8.2-16 15.6l-32.8 91.2-64.8-14c-8.6-1.8-17.6 1.8-22.6 9-5 7.2-5 16.8 0 24l52 74-27.6 30.6c-5.8 6.4-7.4 15.8-4 23.8 3.4 8 11.2 13.2 19.8 13.2h28l46.2 60.4c5.8 7.6 14.8 12 24.4 12h32c10.4 0 19.8-5.6 25-14.8l46.6-83 176.4 38.2c1.2.2 2.4.4 3.6.4 10.4 0 20-5.4 25.2-14.4 5.4-9.4 5.2-20.8-.4-30L498.4 121.2z"/>
-      </svg>
+      <img src="aviator.png" width="80" height="40" style="filter: drop-shadow(0px 15px 10px rgba(0, 0, 0, 0.5)); object-fit: contain;" alt="Plane">
     </div>
   </div>
 
@@ -1826,36 +1833,77 @@
     
     let animationFrameId = null;
     let gameStartTime = 0;
+    let planePoints = [];
     
     function renderFrame() {
         if (gameState !== 'RUNNING') return;
         
-        let elapsedSec = (Date.now() - gameStartTime) / 1000;
-        let localMultiplier = Math.max(1.00, Math.exp(0.08 * elapsedSec));
+        let t = (Date.now() - gameStartTime) / 1000;
+        let rate = 0.32; // Matches Aviator's growth rate more closely
+        let speed = 60; // Horizontal speed
+        let verticalScale = 80; // Adjusted scale for a slightly flatter curve
         
-        // Sync with server if we lag behind
-        if (localMultiplier < currentMultiplier) localMultiplier = currentMultiplier;
+        // Pure exponential math for the visual curve
+        let visualM = Math.exp(rate * t);
         
-        multDisplay.innerText = localMultiplier.toFixed(2) + 'x';
+        // Text display sync
+        let displayM = visualM;
+        if (displayM < currentMultiplier) displayM = currentMultiplier;
         
-        let maxMult = 10;
-        let t = Math.min(1, Math.log(localMultiplier) / Math.log(maxMult)); 
-        let x = 20 + t * (w - 70);
-        let y = (h - 20) - Math.pow(t, 0.7) * (h - 70);
+        multDisplay.innerText = displayM.toFixed(2) + 'x';
         
-        let nextT = Math.min(1, Math.log(localMultiplier + 0.1) / Math.log(maxMult));
-        let nextX = 20 + nextT * (w - 70);
-        let nextY = (h - 20) - Math.pow(nextT, 0.7) * (h - 70);
-        let angle = Math.atan2(nextY - y, nextX - x) * 180 / Math.PI;
+        let startX = 20;
+        let startY = h - 20;
+        
+        let maxT = t;
+        let maxM = visualM;
+        
+        // Dynamically adjust scale to keep plane in view
+        let maxX = speed * Math.pow(maxT, 1.05);
+        if (maxX > w - 80) {
+             speed = (w - 80) / Math.pow(maxT, 1.05);
+        }
+        
+        let maxY = (maxM - 1) * verticalScale;
+        if (maxY > h - 60) {
+             verticalScale = (h - 60) / (maxM - 1);
+        }
+        
+        planePoints = [];
+        let timeStep = Math.max(0.02, t / 100);
+        for (let stepT = 0; stepT <= t; stepT += timeStep) {
+            let m = Math.exp(rate * stepT);
+            let px = startX + speed * Math.pow(stepT, 1.05);
+            let py = startY - (m - 1) * verticalScale;
+            planePoints.push({x: px, y: py});
+        }
+        
+        let currentX = startX + speed * Math.pow(t, 1.05);
+        let currentY = startY - (visualM - 1) * verticalScale;
+        planePoints.push({x: currentX, y: currentY});
+        
+        // Calculate smooth derivative for stable angle without shaking
+        let dx_dt = speed * 1.05 * Math.pow(Math.max(t, 0.001), 0.05);
+        let dy_dt = -rate * verticalScale * Math.exp(rate * t);
+        let angle = Math.atan2(dy_dt, dx_dt) * 180 / Math.PI;
+        angle = Math.max(-45, Math.min(angle, 45));
 
-        plane.style.transform = `translate(${x}px, ${y}px) rotate(${angle}deg)`;
+        plane.style.transform = `translate(${currentX}px, ${currentY}px) rotate(${angle}deg)`;
         
-        pathD += ` L ${x} ${y}`;
-        if(document.getElementById('trailPath')) document.getElementById('trailPath').setAttribute('d', pathD);
+        if (planePoints.length > 0) {
+            let dLine = `M ${planePoints[0].x} ${planePoints[0].y}`;
+            for (let i = 1; i < planePoints.length; i++) {
+                dLine += ` L ${planePoints[i].x} ${planePoints[i].y}`;
+            }
+            if(document.getElementById('trailPath')) document.getElementById('trailPath').setAttribute('d', dLine);
+            
+            let dFill = dLine + ` L ${currentX} ${startY} L ${planePoints[0].x} ${startY} Z`;
+            if(document.getElementById('trailFill')) document.getElementById('trailFill').setAttribute('d', dFill);
+        }
         
         if (betStatus === 'ACTIVE' && document.getElementById('autoSwitch').checked) {
            const autoVal = parseFloat(document.getElementById('autoCashoutVal').value);
-           if (localMultiplier >= autoVal) {
+           if (displayM >= autoVal) {
              betStatus = 'CASHOUT';
              updateBetBtn('WAITING_CASHOUT');
              playSound('cashout');
@@ -1887,6 +1935,8 @@
                 animationFrameId = null;
              }
              gameState = 'WAITING';
+             document.getElementById('aviatorBox').classList.remove('running');
+             planePoints = [];
              multDisplay.style.display = 'none';
              flewAwayText.style.display = 'none';
              plane.style.display = 'none';
@@ -1928,6 +1978,8 @@
                 playSound('fly');
                 gameState = 'RUNNING';
                 gameStartTime = Date.now(); // Start local timer
+                document.getElementById('aviatorBox').classList.add('running');
+                planePoints = [];
                 
                 multDisplay.style.display = 'block';
                 plane.style.display = 'block';
@@ -1958,19 +2010,42 @@
              if (betStatus === 'ACTIVE') updateBetBtn('CASHOUT'); // update cashout amount display
           }
           else if (data.status === 'CRASHED') {
+             if (gameState !== 'CRASHED') {
+                playSound('crash');
+             }
+             
+             if (gameState === 'RUNNING') {
+                let startFlyX = planePoints.length > 0 ? planePoints[planePoints.length-1].x : 20;
+                let startFlyY = planePoints.length > 0 ? planePoints[planePoints.length-1].y : h - 20;
+                let flyStartTime = Date.now();
+                function flyAway() {
+                    let fSec = (Date.now() - flyStartTime) / 1000;
+                    let flyX = startFlyX + (fSec * 1500); 
+                    let flyY = startFlyY - (fSec * 800); 
+                    plane.style.transform = `translate(${flyX}px, ${flyY}px) rotate(-15deg)`;
+                    if (flyX < w + 300) {
+                        requestAnimationFrame(flyAway);
+                    } else {
+                        plane.style.display = 'none';
+                        flewAwayText.style.display = 'block';
+                    }
+                }
+                requestAnimationFrame(flyAway);
+             } else {
+                plane.style.display = 'none';
+                flewAwayText.style.display = 'block';
+             }
+
              if (animationFrameId) {
                 cancelAnimationFrame(animationFrameId);
                 animationFrameId = null;
              }
-             if (gameState !== 'CRASHED') {
-                playSound('crash');
-             }
+             
              gameState = 'CRASHED';
+             document.getElementById('aviatorBox').classList.remove('running');
              currentMultiplier = data.multiplier;
              multDisplay.innerText = currentMultiplier.toFixed(2) + 'x';
              multDisplay.style.color = '#ef4444';
-             flewAwayText.style.display = 'block';
-             plane.style.display = 'none';
              
              if (betStatus === 'ACTIVE' || betStatus === 'PROCESSING') {
                 betStatus = 'NONE';
