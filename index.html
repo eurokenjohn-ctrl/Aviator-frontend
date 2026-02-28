@@ -1839,7 +1839,7 @@
         if (gameState !== 'RUNNING') return;
         
         let t = (Date.now() - gameStartTime) / 1000;
-        let rate = 0.32; // Matches Aviator's growth rate more closely
+        let rate = 0.08; // Match the backend growth rate perfectly
         let speed = 60; // Horizontal speed
         let verticalScale = 80; // Adjusted scale for a slightly flatter curve
         
