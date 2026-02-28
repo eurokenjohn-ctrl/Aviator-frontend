@@ -189,31 +189,49 @@
 
     <!-- Accordion Menus -->
     <div class="list-container">
-      <div class="list-item">
+      <div class="list-item" onclick="toggleAccordion('acc-products')">
         <div class="list-item-content">Products</div>
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
       </div>
-      <div class="list-item">
+      <div id="acc-products" style="display:none; padding: 15px; background: #1f2937; border-bottom: 1px solid #374151;">
+        <a href="index.html" style="color: white; text-decoration: none; display: block; padding: 5px 0;">Aviator</a>
+      </div>
+
+      <div class="list-item" onclick="toggleAccordion('acc-support')">
         <div class="list-item-content">Support</div>
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
       </div>
-      <div class="list-item">
+      <div id="acc-support" style="display:none; padding: 15px; background: #1f2937; border-bottom: 1px solid #374151;">
+        <div style="display: flex; justify-content: space-between; padding: 5px 0; color: #9ca3af;"><span>Hotline</span><a href="tel:0715979797" style="color: white; text-decoration: none; font-weight: bold;">0715 979 797</a></div>
+        <div style="display: flex; justify-content: space-between; padding: 5px 0; color: #9ca3af;"><span>Email</span><a href="mailto:care@betfalme.contact" style="color: white; text-decoration: none; font-weight: bold;">care@betfalme.contact</a></div>
+      </div>
+
+      <div class="list-item" onclick="toggleAccordion('acc-info')">
         <div class="list-item-content">Info</div>
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
       </div>
-      <div class="list-item">
+      <div id="acc-info" style="display:none; padding: 15px; background: #1f2937; border-bottom: 1px solid #374151;">
+        <div style="padding: 5px 0; color: #9ca3af;">Terms & Conditions</div>
+        <div style="padding: 5px 0; color: #9ca3af;">Privacy Policy</div>
+        <div style="padding: 5px 0; color: #9ca3af;">Responsible Gaming</div>
+      </div>
+
+      <div class="list-item" onclick="toggleAccordion('acc-18')">
         <div class="list-item-content">18+ Only</div>
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+      </div>
+      <div id="acc-18" style="display:none; padding: 15px; background: #1f2937;">
+        <div style="color: #9ca3af; font-size: 14px;">You must be 18+ to play. Gamble responsibly.</div>
       </div>
     </div>
 
     <!-- Social Media -->
     <div class="social-row">
-      <a href="#" class="social-btn social-ig">IG</a>
-      <a href="#" class="social-btn social-fb">FB</a>
-      <a href="#" class="social-btn social-x">X</a>
-      <a href="#" class="social-btn social-tk">TK</a>
-      <a href="#" class="social-btn social-yt">YT</a>
+      <a href="https://instagram.com/" target="_blank" class="social-btn social-ig">IG</a>
+      <a href="https://facebook.com/" target="_blank" class="social-btn social-fb">FB</a>
+      <a href="https://x.com/" target="_blank" class="social-btn social-x">X</a>
+      <a href="https://tiktok.com/" target="_blank" class="social-btn social-tk">TK</a>
+      <a href="https://youtube.com/" target="_blank" class="social-btn social-yt">YT</a>
     </div>
 
     <!-- Info Boxes (Pay With / Age Limit) -->
@@ -247,7 +265,7 @@
     <!-- Danger Zone -->
     <div class="card-title">Danger Zone</div>
     <div class="list-container">
-      <div class="list-item" onclick="alert('Open Delete Account Popup')" style="padding: 15px;">
+      <div class="list-item" onclick="openDeleteAccount()" style="padding: 15px;">
         <div style="display: flex; align-items: center; gap: 15px;">
           <div style="background: rgba(239, 68, 68, 0.15); padding: 10px; border-radius: 8px; color: #ef4444; display: flex;">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
@@ -738,11 +756,74 @@
     window.location.href = 'index.html';
   }
 
+  function toggleAccordion(id) {
+    const el = document.getElementById(id);
+    el.style.display = el.style.display === 'none' ? 'block' : 'none';
+  }
+
+  function openDeleteAccount() {
+    if(!currentUser) return;
+    document.getElementById('deleteUsername').value = currentUser.username;
+    document.getElementById('deletePhone').value = currentUser.phone;
+    document.getElementById('deletePin').value = '';
+    document.getElementById('deleteError').style.display = 'none';
+    document.getElementById('deleteAccountPopup').style.display = 'flex';
+  }
+
+  async function submitDeleteAccount() {
+    const pin = document.getElementById('deletePin').value;
+    const errEl = document.getElementById('deleteError');
+    errEl.style.display = 'none';
+
+    if(!pin) { errEl.innerText="Please enter your PIN"; errEl.style.display='block'; return; }
+
+    try {
+      const res = await fetch(`${BACKEND_URL}/delete-account`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone: currentUser.phone, pin })
+      });
+      const data = await res.json();
+      if(data.success) {
+        showNotification("Account deleted successfully");
+        document.getElementById('deleteAccountPopup').style.display = 'none';
+        localStorage.removeItem('swiftcrash_user');
+        window.location.href = 'index.html';
+      } else {
+        errEl.innerText = data.error || "Failed to delete account";
+        errEl.style.display = 'block';
+      }
+    } catch(e) { errEl.innerText="Network error"; errEl.style.display='block'; }
+  }
+
   document.addEventListener('DOMContentLoaded', initMenu);
 
 </script>
 
   
+  <!-- Delete Account Popup -->
+  <div class="popup-overlay" id="deleteAccountPopup">
+    <div class="popup-content">
+      <span class="popup-close" onclick="document.getElementById('deleteAccountPopup').style.display='none'">×</span>
+      <h2 style="margin-top:0; color:#ef4444;">Delete Account</h2>
+      <p style="font-size:12px; color:#9ca3af; margin-bottom:15px;">Warning: This action is permanent and cannot be undone.</p>
+      <div class="form-group">
+        <label>Username</label>
+        <input type="text" class="form-control" id="deleteUsername" readonly style="color:#9ca3af; background:#1f2937;">
+      </div>
+      <div class="form-group">
+        <label>Phone Number</label>
+        <input type="text" class="form-control" id="deletePhone" readonly style="color:#9ca3af; background:#1f2937;">
+      </div>
+      <div class="form-group">
+        <label>Enter PIN to Confirm</label>
+        <input type="password" class="form-control" id="deletePin" maxlength="6">
+      </div>
+      <div class="error-msg" id="deleteError" style="color:#ef4444; font-size:12px; margin-bottom:10px; display:none;"></div>
+      <button class="btn-submit" style="background:#ef4444;" onclick="submitDeleteAccount()">Delete My Account</button>
+    </div>
+  </div>
+
   <div id="toast-container"></div>
 
   <!-- Deposit Popup -->
@@ -957,4 +1038,4 @@
   </div>
 
 </body>
-          </html>
+      </html>
