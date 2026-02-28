@@ -457,10 +457,8 @@
   <!-- Fake Stats Card -->
   <div class="fake-stats-card" style="margin: 10px; background: #111827; border-radius: 12px; padding: 15px; border: 1px solid #1f2937;">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-      <div style="display: flex; align-items: center; position: relative; height: 32px; width: 80px;">
-        <img src="Screenshot_20260228_091438_Chrome_1772259748034.jpg" style="width: 32px; height: 32px; border-radius: 50%; border: 2px solid #22c55e; position: absolute; left: 0; z-index: 3; object-fit: cover;">
-        <img src="Screenshot_20260228_092105_Chrome_1772259748292.jpg" style="width: 32px; height: 32px; border-radius: 50%; border: 2px solid #22c55e; position: absolute; left: 18px; z-index: 2; object-fit: cover;">
-        <img src="Screenshot_20260228_092119_Chrome_1772259748348.jpg" style="width: 32px; height: 32px; border-radius: 50%; border: 2px solid #22c55e; position: absolute; left: 36px; z-index: 1; object-fit: cover;">
+      <div id="fakeAvatarsContainer" style="display: flex; align-items: center; position: relative; height: 32px; width: 80px;">
+        <!-- Avatars will be injected here via JS -->
       </div>
       <div style="text-align: right;">
         <div id="fakeTotalWin" style="font-size: 24px; font-weight: bold; color: white;">0.00</div>
@@ -480,10 +478,42 @@
     let fakeMaxBetsCount = 0;
     let fakeTotalWinAmount = 0.00;
 
+    const fakeAvatarImages = [
+      'av1.png', 'av2.png', 'av3.png', 'av4.png', 'av5.png',
+      'av6.png', 'av7.png', 'av8.png', 'av9.png', 'av10.png'
+    ];
+    let currentFakeAvatars = [];
+
+    function renderFakeAvatars() {
+      const container = document.getElementById('fakeAvatarsContainer');
+      if (!container) return;
+      container.innerHTML = '';
+      currentFakeAvatars.forEach((img, index) => {
+        const imgEl = document.createElement('img');
+        imgEl.src = img;
+        imgEl.style.width = '32px';
+        imgEl.style.height = '32px';
+        imgEl.style.borderRadius = '50%';
+        imgEl.style.border = '2px solid #22c55e';
+        imgEl.style.position = 'absolute';
+        imgEl.style.left = `${index * 18}px`;
+        imgEl.style.zIndex = 10 - index;
+        imgEl.style.objectFit = 'cover';
+        imgEl.style.backgroundColor = '#1f2937';
+        container.appendChild(imgEl);
+      });
+    }
+
     function resetFakeStats() {
       fakeTotalBetsCount = 0;
       fakeMaxBetsCount = Math.floor(Math.random() * 3000) + 2000;
       fakeTotalWinAmount = 0.00;
+      
+      currentFakeAvatars = [];
+      if (Math.random() > 0.3) {
+        currentFakeAvatars.push(fakeAvatarImages[Math.floor(Math.random() * fakeAvatarImages.length)]);
+      }
+      renderFakeAvatars();
       
       const betsEl = document.getElementById('fakeTotalBets');
       const winEl = document.getElementById('fakeTotalWin');
@@ -512,10 +542,25 @@
         if(betsEl) betsEl.innerText = `${fakeTotalBetsCount}/${fakeMaxBetsCount}`;
         if(winEl) winEl.innerText = fakeTotalWinAmount.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
         if(barEl) barEl.style.width = `${progressPercent}%`;
+
+        if (Math.random() > 0.7 && currentFakeAvatars.length > 0) {
+          currentFakeAvatars.pop();
+          renderFakeAvatars();
+        }
+
       } else if (typeof gameState !== 'undefined' && gameState === 'WAITING') {
         if (fakeTotalBetsCount !== 0) {
             resetFakeStats();
         }
+
+        if (Math.random() > 0.4 && currentFakeAvatars.length < 4) {
+          const randomAv = fakeAvatarImages[Math.floor(Math.random() * fakeAvatarImages.length)];
+          if (!currentFakeAvatars.includes(randomAv)) {
+            currentFakeAvatars.push(randomAv);
+            renderFakeAvatars();
+          }
+        }
+
       }
     }
 
@@ -537,14 +582,16 @@
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 2px;"><path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a8 8 0 0 1-5 7.96V16a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v5.96A8 8 0 0 1 2 15V7"/><path d="M22 10.5v1.07a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2V10.5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2Z"/></svg>
       Wallet
     </a>
-    <a href="Menu.html">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 2px;"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
-      Menu
-    </a>
-    <a href="#" onclick="openAdmin()">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 2px;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-      Admin
-    </a>
+    <div style="position:relative; display:flex; flex-direction:column; align-items:center; justify-content:center;">
+      <a href="javascript:void(0)" onclick="document.getElementById('menuDropdown').style.display = document.getElementById('menuDropdown').style.display === 'block' ? 'none' : 'block'" style="display:flex; flex-direction:column; align-items:center; color:#9ca3af; text-decoration:none; font-size:12px;">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 2px;"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
+        Menu
+      </a>
+      <div id="menuDropdown" style="display:none; position:absolute; bottom:50px; right:0; background:#1f2937; border:1px solid #374151; border-radius:8px; width:120px; z-index:100; overflow:hidden; box-shadow:0 4px 6px rgba(0,0,0,0.3);">
+        <a href="Menu.html" style="display:flex; align-items:center; padding:12px; color:white; text-decoration:none; border-bottom:1px solid #374151; font-size:14px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:8px;"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>Full Menu</a>
+        <a href="#" onclick="openAdmin(); document.getElementById('menuDropdown').style.display='none'" style="display:flex; align-items:center; padding:12px; color:white; text-decoration:none; font-size:14px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:8px;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Admin</a>
+      </div>
+    </div>
   </div>
 
   <!-- ADMIN POPUP -->
