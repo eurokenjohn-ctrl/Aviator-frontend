@@ -59,6 +59,38 @@
     .footer a.active { color: #facc15; }
     .footer .center-btn { background: #facc15; border-radius: 50%; width: 48px; height: 48px; display: flex; justify-content: center; align-items: center; color: #000; margin-top: -24px; box-shadow: 0 -4px 10px rgba(250, 204, 21, 0.3); }
 
+  
+    /* Toast and Loading */
+    #toast-container { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 9999; display: flex; flex-direction: column; gap: 10px; width: 90%; max-width: 400px; pointer-events: none; }
+    .toast-msg { padding: 15px 20px; border-radius: 8px; font-weight: bold; font-size: 14px; text-align: center; color: white; opacity: 0; transform: translateY(-20px); transition: all 0.3s ease; box-shadow: 0 4px 6px rgba(0,0,0,0.3); pointer-events: auto; }
+    .toast-msg.show { opacity: 1; transform: translateY(0); }
+    .toast-success { background: linear-gradient(135deg, #16a34a, #22c55e); }
+    .toast-error { background: linear-gradient(135deg, #dc2626, #ef4444); }
+
+    /* Popups and Pages */
+    .popup-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center; }
+    .popup-content { background: #111827; padding: 20px; border-radius: 12px; width: 90%; max-width: 400px; position: relative; max-height: 90vh; overflow-y: auto; border: 1px solid #1f2937; }
+    .popup-close { position: absolute; top: 10px; right: 15px; color: white; cursor: pointer; font-size: 24px; font-weight: bold; }
+    .form-group { margin-bottom: 15px; }
+    .form-group label { display: block; margin-bottom: 5px; font-size: 12px; color: #9ca3af; }
+    .form-control { width: 100%; padding: 10px; background: #111827; border: 1px solid #374151; color: white; border-radius: 5px; box-sizing: border-box; font-size: 16px; }
+    .bet-presets { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; margin-bottom: 15px; }
+    .preset { background: #1f2937; border: none; color: white; padding: 10px 0; border-radius: 4px; cursor: pointer; font-size: 12px; }
+    .btn-submit { width: 100%; padding: 12px; color: white; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 16px; }
+    .spinner { display: none; margin: 10px auto; border: 4px solid rgba(255,255,255,0.1); border-left-color: #f97316; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; }
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+
+    /* Page popups */
+    .page-popup { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #09090b; z-index: 2000; flex-direction: column; overflow-y: auto; }
+    .page-header { padding: 15px; display: flex; align-items: center; border-bottom: 1px solid #1f2937; position: sticky; top: 0; background: #09090b; z-index: 10; gap: 15px; }
+    .page-back-btn { background: #1f2937; border: none; color: white; padding: 10px; border-radius: 8px; cursor: pointer; display: flex; }
+    .page-title { margin: 0; font-size: 18px; flex: 1; text-align: center; }
+    .page-content { padding: 15px; flex: 1; }
+    .tabs-container { display: flex; gap: 10px; overflow-x: auto; margin-bottom: 15px; padding-bottom: 5px; }
+    .tab-btn { background: #1f2937; color: #9ca3af; border: none; padding: 8px 16px; border-radius: 20px; font-size: 14px; white-space: nowrap; cursor: pointer; }
+    .tab-btn.active { background: #facc15; color: #000; font-weight: bold; }
+    .search-box { background: #111827; border: 1px solid #374151; border-radius: 8px; padding: 10px; width: 100%; color: white; margin-bottom: 15px; box-sizing: border-box; }
+
   </style>
 </head>
 <body>
@@ -86,8 +118,8 @@
       <div style="font-size: 28px; font-weight: bold; color: #22c55e; margin-bottom: 20px;" id="userBalanceDisplay">KSH 0.00</div>
       
       <div style="display: flex; gap: 10px;">
-        <button class="btn-deposit" onclick="alert('Open Deposit Popup')">DEPOSIT</button>
-        <button class="btn-withdraw" onclick="alert('Open Withdraw Popup')">WITHDRAW</button>
+        <button class="btn-deposit" onclick="openDeposit()">DEPOSIT</button>
+        <button class="btn-withdraw" onclick="openWithdraw()">WITHDRAW</button>
       </div>
     </div>
 
@@ -122,14 +154,14 @@
         </div>
         <span class="list-arrow">></span>
       </div>
-      <div class="list-item" onclick="window.location.href='support.html'">
+      <div class="list-item" onclick="document.getElementById('page-support').style.display='flex'">
         <div class="list-item-content">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ec4899" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
           Support
         </div>
         <span class="list-arrow">></span>
       </div>
-      <div class="list-item" onclick="window.location.href='password.html'">
+      <div class="list-item" onclick="document.getElementById('page-password').style.display='flex'">
         <div class="list-item-content">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#a855f7" stroke-width="2"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
           Change password
@@ -229,7 +261,7 @@
       </div>
     </div>
 
-    <button style="width: 100%; background: #111827; border: 1px solid #1f2937; color: white; padding: 15px; border-radius: 12px; font-weight: bold; display: flex; justify-content: center; align-items: center; gap: 10px; cursor: pointer; font-size: 14px;" onclick="alert('Signing out...')">
+    <button style="width: 100%; background: #111827; border: 1px solid #1f2937; color: white; padding: 15px; border-radius: 12px; font-weight: bold; display: flex; justify-content: center; align-items: center; gap: 10px; cursor: pointer; font-size: 14px;" onclick="signOut()">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
       Sign Out
     </button>
@@ -261,9 +293,41 @@
   </div>
 
   <script>
-  const BACKEND_URL = ''; // Use relative paths to talk to the current server
+
+  const BACKEND_URL = 'https://swiftaviator-server.onrender.com';
 
   let currentUser = null;
+  let allTransactions = [];
+  let txFilterTab = 'all';
+  let txSearchText = '';
+  
+  let allBets = [];
+  let betsFilterTab = 'all';
+  
+  let allNotifications = [];
+  let notifFilterTab = 'all';
+
+  function showNotification(message, type = 'success') {
+    const container = document.getElementById('toast-container');
+    if(!container) return;
+    const toast = document.createElement('div');
+    toast.className = `toast-msg toast-${type}`;
+    toast.innerText = message;
+    container.appendChild(toast);
+    
+    void toast.offsetWidth;
+    toast.classList.add('show');
+    
+    setTimeout(() => {
+      toast.classList.remove('show');
+      setTimeout(() => toast.remove(), 300);
+    }, 3000);
+  }
+
+  window.alert = function(msg) {
+    const type = msg.toLowerCase().includes('fail') || msg.toLowerCase().includes('error') || msg.toLowerCase().includes('invalid') || msg.toLowerCase().includes('insufficient') ? 'error' : 'success';
+    showNotification(msg, type);
+  };
 
   function initMenu() {
     const userStr = localStorage.getItem('swiftcrash_user');
@@ -281,9 +345,15 @@
           refreshBalanceSilently();
           fetchNotificationsCount();
         }, 10000);
+        
+        // Setup referral link
+        const refLink = `https://swiftcrash.com/?ref=${currentUser.username}`;
+        const refEl = document.getElementById('referralLinkText');
+        if (refEl) refEl.innerText = refLink;
+        
       } catch(e) {}
     } else {
-      window.location.href = 'index.html'; // Redirect to login if not logged in
+      window.location.href = 'index.html';
     }
   }
 
@@ -322,50 +392,94 @@
     } catch(e) {}
   }
 
-  async function openNotifications() {
-    document.getElementById('notificationsPopup').style.display = 'flex';
-    const list = document.getElementById('notificationsList');
-    list.innerHTML = '<p style="text-align:center; color:#9ca3af; font-size: 14px; padding: 20px 0;">Loading...</p>';
+  function openDeposit() {
     if(!currentUser) return;
-    
+    document.getElementById('depositPhone').value = currentUser.phone;
+    document.getElementById('depositCurrentBalance').innerText = `KSH ${parseFloat(currentUser.balance).toFixed(2)}`;
+    document.getElementById('depositPopup').style.display = 'flex';
+  }
+
+  async function submitDeposit() {
+    const amount = document.getElementById('depositAmount').value;
+    const spinner = document.getElementById('depositSpinner');
+    const btn = document.getElementById('submitDepositBtn');
+
+    if (amount < 1) { showNotification("Min deposit is KSH 1", "error"); return; }
+
+    spinner.style.display = 'block';
+    btn.style.display = 'none';
+
     try {
-      const res = await fetch(`${BACKEND_URL}/api/notifications?phone=${currentUser.phone}`);
+      const res = await fetch(`${BACKEND_URL}/pay`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone: currentUser.phone, amount })
+      });
       const data = await res.json();
-      if(data.success) {
-        if(data.notifications.length === 0) {
-          list.innerHTML = '<p style="text-align:center; color:#9ca3af;">No notifications yet</p>';
-        } else {
-          list.innerHTML = data.notifications.map(n => `
-            <div style="background: ${n.is_read ? '#1f2937' : '#1e293b'}; padding: 10px; border-radius: 5px; margin-bottom: 8px; font-size: 13px; border-left: 3px solid ${n.is_read ? '#3b82f6' : '#f59e0b'};">
-              ${n.message}
-              <div style="font-size: 10px; color: #9ca3af; margin-top: 5px;">${new Date(n.created_at).toLocaleString()}</div>
-            </div>
-          `).join('');
-          
-          // Mark as read
-          fetch(`${BACKEND_URL}/api/notifications/mark-read`, {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({phone: currentUser.phone})
-          });
-          
-          const badge = document.querySelector('.notification-badge');
-          if (badge) badge.style.display = 'none';
-        }
+      spinner.style.display = 'none';
+      btn.style.display = 'block';
+
+      if (data.success) {
+        showNotification("Deposit request sent. Check M-Pesa.", "success");
+        setTimeout(() => document.getElementById('depositPopup').style.display='none', 2000);
+      } else {
+        showNotification(data.error || "Deposit failed", "error");
       }
-    } catch(e) {
-      list.innerHTML = '<p style="text-align:center; color:#ef4444;">Error loading notifications</p>';
+    } catch (e) {
+      spinner.style.display = 'none';
+      btn.style.display = 'block';
+      showNotification("Error connecting to server", "error");
     }
   }
 
-  function closeNotifications() { document.getElementById('notificationsPopup').style.display = 'none'; }
+  function openWithdraw() {
+    if(!currentUser) return;
+    document.getElementById('withdrawPhone').value = currentUser.phone;
+    document.getElementById('withdrawCurrentBalance').innerText = `KSH ${parseFloat(currentUser.balance).toFixed(2)}`;
+    document.getElementById('withdrawPopup').style.display = 'flex';
+  }
+
+  async function submitWithdraw() {
+    const amount = document.getElementById('withdrawAmount').value;
+    const spinner = document.getElementById('withdrawSpinner');
+    const btn = document.getElementById('submitWithdrawBtn');
+
+    if (amount < 100) { showNotification("Min withdrawal is KSH 100", "error"); return; }
+    if (parseFloat(amount) > parseFloat(currentUser.balance)) { showNotification("Insufficient balance", "error"); return; }
+
+    spinner.style.display = 'block';
+    btn.style.display = 'none';
+
+    try {
+      const res = await fetch(`${BACKEND_URL}/withdraw`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone: currentUser.phone, amount })
+      });
+      const data = await res.json();
+      spinner.style.display = 'none';
+      btn.style.display = 'block';
+
+      if (data.success) {
+        showNotification("Withdrawal successful", "success");
+        currentUser.balance = data.balance;
+        localStorage.setItem('swiftcrash_user', JSON.stringify(currentUser));
+        document.getElementById('userBalanceDisplay').innerText = `KSH ${parseFloat(currentUser.balance).toFixed(2)}`;
+        setTimeout(() => document.getElementById('withdrawPopup').style.display='none', 2000);
+      } else {
+        showNotification(data.error || "Withdrawal failed", "error");
+      }
+    } catch (e) {
+      spinner.style.display = 'none';
+      btn.style.display = 'block';
+      showNotification("Error connecting to server", "error");
+    }
+  }
 
   async function openTransactionHistory() {
-    document.getElementById('transactionHistoryPopup').style.display = 'flex';
-    const list = document.getElementById('transactionsList');
-    list.innerHTML = '<p style="text-align:center; color:#9ca3af;">Loading...</p>';
+    document.getElementById('page-transactions').style.display = 'flex';
+    document.getElementById('transactionsList').innerHTML = '<p style="text-align:center; color:#9ca3af;">Loading...</p>';
     if(!currentUser) return;
-
     try {
       const res = await fetch(`${BACKEND_URL}/transactions-history`, {
         method: 'POST',
@@ -373,39 +487,70 @@
         body: JSON.stringify({ phone: currentUser.phone })
       });
       const data = await res.json();
-      if (data.success) {
-        if (data.transactions.length === 0) {
-           list.innerHTML = '<div style="text-align:center; color:#9ca3af; padding:20px;">No transactions found</div>';
-        } else {
-           list.innerHTML = data.transactions.map(tx => `
-             <div style="background:#1f2937; padding:12px; border-radius:8px; display:flex; justify-content:space-between; align-items:center; border-left: 4px solid ${tx.type === 'deposit' ? '#22c55e' : (tx.type==='withdrawal' ? '#f59e0b' : '#3b82f6')}">
-               <div>
-                 <div style="font-weight:bold; font-size:14px; text-transform:capitalize;">${tx.type}</div>
-                 <div style="font-size:11px; color:#9ca3af;">${new Date(tx.created_at).toLocaleString()}</div>
-               </div>
-               <div style="text-align:right;">
-                 <div style="font-weight:bold; color:${tx.type === 'deposit' || tx.type === 'win' || tx.type === 'referral_bonus' ? '#22c55e' : '#f59e0b'}">
-                   ${tx.type === 'deposit' || tx.type === 'win' || tx.type === 'referral_bonus' ? '+' : '-'}KSH ${parseFloat(tx.amount).toFixed(2)}
-                 </div>
-                 <div style="font-size:11px; color:${tx.status==='success'?'#22c55e':(tx.status==='failed'?'#ef4444':'#f59e0b')}; text-transform:capitalize;">${tx.status}</div>
-               </div>
-             </div>
-           `).join('');
-        }
+      if(data.success) {
+        allTransactions = data.transactions;
+        renderTransactions();
+      } else {
+        document.getElementById('transactionsList').innerHTML = '<p style="text-align:center; color:#ef4444;">Error loading transactions</p>';
       }
     } catch(e) {
-      list.innerHTML = '<p style="text-align:center; color:#ef4444;">Error loading transactions</p>';
+      document.getElementById('transactionsList').innerHTML = '<p style="text-align:center; color:#ef4444;">Error connecting to server</p>';
     }
   }
 
-  function closeTransactionHistory() { document.getElementById('transactionHistoryPopup').style.display = 'none'; }
+  function setTxTab(tab) {
+    txFilterTab = tab;
+    document.querySelectorAll('#txTabs .tab-btn').forEach(b => b.classList.remove('active'));
+    event.target.classList.add('active');
+    renderTransactions();
+  }
+
+  function filterTransactions() {
+    txSearchText = document.getElementById('txSearch').value.toLowerCase();
+    renderTransactions();
+  }
+
+  function renderTransactions() {
+    const list = document.getElementById('transactionsList');
+    let filtered = allTransactions;
+    if(txFilterTab !== 'all') {
+      if(txFilterTab === 'referral') {
+        filtered = filtered.filter(tx => tx.type.includes('referral'));
+      } else {
+        filtered = filtered.filter(tx => tx.type === txFilterTab);
+      }
+    }
+    if(txSearchText) {
+      filtered = filtered.filter(tx => 
+        tx.type.toLowerCase().includes(txSearchText) || 
+        (tx.amount && tx.amount.toString().includes(txSearchText)) ||
+        (tx.status && tx.status.toLowerCase().includes(txSearchText))
+      );
+    }
+    if (filtered.length === 0) {
+       list.innerHTML = '<div style="text-align:center; color:#9ca3af; padding:20px;">No transactions found</div>';
+       return;
+    }
+    list.innerHTML = filtered.map(tx => `
+      <div style="background:#1f2937; padding:12px; border-radius:8px; display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; border-left: 4px solid ${tx.type === 'deposit' ? '#22c55e' : (tx.type==='withdrawal' ? '#f59e0b' : '#3b82f6')}">
+        <div>
+          <div style="font-weight:bold; font-size:14px; text-transform:capitalize;">${tx.type.replace('_', ' ')}</div>
+          <div style="font-size:11px; color:#9ca3af;">${new Date(tx.created_at).toLocaleString()}</div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-weight:bold; color:${tx.type === 'deposit' || tx.type === 'win' || tx.type.includes('referral') ? '#22c55e' : '#f59e0b'}">
+            ${tx.type === 'deposit' || tx.type === 'win' || tx.type.includes('referral') ? '+' : '-'}KSH ${parseFloat(tx.amount).toFixed(2)}
+          </div>
+          <div style="font-size:11px; color:${tx.status==='success'?'#22c55e':(tx.status==='failed'?'#ef4444':'#f59e0b')}; text-transform:capitalize;">${tx.status}</div>
+        </div>
+      </div>
+    `).join('');
+  }
 
   async function openMyBets() {
-    document.getElementById('myBetsPopup').style.display = 'flex';
-    const list = document.getElementById('myBetsList');
-    list.innerHTML = '<p style="text-align:center; color:#9ca3af;">Loading...</p>';
+    document.getElementById('page-bets').style.display = 'flex';
+    document.getElementById('myBetsList').innerHTML = '<p style="text-align:center; color:#9ca3af;">Loading...</p>';
     if(!currentUser) return;
-
     try {
       const res = await fetch(`${BACKEND_URL}/api/my-bets`, {
         method: 'POST',
@@ -413,47 +558,122 @@
         body: JSON.stringify({ phone: currentUser.phone })
       });
       const data = await res.json();
-      if (data.success) {
-        if (data.bets.length === 0) {
-           list.innerHTML = '<div style="text-align:center; color:#9ca3af; padding:20px;">No bets found</div>';
-        } else {
-           list.innerHTML = data.bets.map(bet => `
-             <div style="background:#1f2937; padding:12px; border-radius:8px; display:flex; justify-content:space-between; align-items:center; border-left: 4px solid ${bet.status === 'cashed_out' ? '#22c55e' : (bet.status==='lost' ? '#ef4444' : '#f59e0b')}">
-               <div>
-                 <div style="font-weight:bold; font-size:14px; text-transform:capitalize;">${bet.status.replace('_', ' ')}</div>
-                 <div style="font-size:11px; color:#9ca3af;">${new Date(bet.created_at).toLocaleString()}</div>
-               </div>
-               <div style="text-align:right;">
-                 <div style="font-weight:bold; color:#fff;">Bet: KSH ${parseFloat(bet.amount).toFixed(2)}</div>
-                 ${bet.status === 'cashed_out' 
-                   ? `<div style="font-size:12px; color:#22c55e; font-weight:bold;">Won: KSH ${(parseFloat(bet.amount) * parseFloat(bet.multiplier)).toFixed(2)} (${bet.multiplier}x)</div>` 
-                   : ''}
-               </div>
-             </div>
-           `).join('');
-        }
+      if(data.success) {
+        allBets = data.bets || [];
+        renderBets();
+      } else {
+        document.getElementById('myBetsList').innerHTML = '<p style="text-align:center; color:#ef4444;">Error loading bets</p>';
       }
     } catch(e) {
-      list.innerHTML = '<p style="text-align:center; color:#ef4444;">Error loading bets</p>';
+      document.getElementById('myBetsList').innerHTML = '<p style="text-align:center; color:#ef4444;">Error connecting to server</p>';
     }
   }
 
-  function closeMyBets() { document.getElementById('myBetsPopup').style.display = 'none'; }
+  function setBetsTab(tab) {
+    betsFilterTab = tab;
+    document.querySelectorAll('#betsTabs .tab-btn').forEach(b => b.classList.remove('active'));
+    event.target.classList.add('active');
+    renderBets();
+  }
+
+  function renderBets() {
+    const list = document.getElementById('myBetsList');
+    let filtered = allBets;
+    if(betsFilterTab !== 'all') {
+      if(betsFilterTab === 'win') {
+        filtered = filtered.filter(b => b.status === 'cashed_out');
+      } else if(betsFilterTab === 'lose') {
+        filtered = filtered.filter(b => b.status === 'lost');
+      }
+    }
+    if (filtered.length === 0) {
+       list.innerHTML = '<div style="text-align:center; color:#9ca3af; padding:20px;">No bets found</div>';
+       return;
+    }
+    list.innerHTML = filtered.map(bet => `
+      <div style="background:#1f2937; padding:12px; border-radius:8px; display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; border-left: 4px solid ${bet.status === 'cashed_out' ? '#22c55e' : (bet.status==='lost' ? '#ef4444' : '#f59e0b')}">
+        <div>
+          <div style="font-weight:bold; font-size:14px; text-transform:capitalize;">${bet.status.replace('_', ' ')}</div>
+          <div style="font-size:11px; color:#9ca3af;">${new Date(bet.created_at).toLocaleString()}</div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-weight:bold; color:#fff;">Bet: KSH ${parseFloat(bet.amount).toFixed(2)}</div>
+          ${bet.status === 'cashed_out' 
+            ? `<div style="font-size:12px; color:#22c55e; font-weight:bold;">Won: KSH ${(parseFloat(bet.amount) * parseFloat(bet.multiplier)).toFixed(2)} (${bet.multiplier}x)</div>` 
+            : ''}
+        </div>
+      </div>
+    `).join('');
+  }
+
+  async function openNotifications() {
+    document.getElementById('page-notifications').style.display = 'flex';
+    document.getElementById('notificationsList').innerHTML = '<p style="text-align:center; color:#9ca3af;">Loading...</p>';
+    if(!currentUser) return;
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/notifications?phone=${currentUser.phone}`);
+      const data = await res.json();
+      if(data.success) {
+        allNotifications = data.notifications || [];
+        renderNotifications();
+        
+        fetch(`${BACKEND_URL}/api/notifications/mark-read`, {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({phone: currentUser.phone})
+        });
+        const badge = document.querySelector('.notification-badge');
+        if (badge) badge.style.display = 'none';
+      } else {
+        document.getElementById('notificationsList').innerHTML = '<p style="text-align:center; color:#ef4444;">Error loading notifications</p>';
+      }
+    } catch(e) {
+      document.getElementById('notificationsList').innerHTML = '<p style="text-align:center; color:#ef4444;">Error connecting to server</p>';
+    }
+  }
+
+  function setNotifTab(tab) {
+    notifFilterTab = tab;
+    document.querySelectorAll('#notifTabs .tab-btn').forEach(b => b.classList.remove('active'));
+    event.target.classList.add('active');
+    renderNotifications();
+  }
+
+  function renderNotifications() {
+    const list = document.getElementById('notificationsList');
+    let filtered = allNotifications;
+    if(notifFilterTab !== 'all') {
+      if(notifFilterTab === 'alert') {
+        filtered = filtered.filter(n => n.message.toLowerCase().includes('alert') || !n.message.toLowerCase().includes('deposit') && !n.message.toLowerCase().includes('withdraw'));
+      } else {
+        filtered = filtered.filter(n => n.message.toLowerCase().includes(notifFilterTab));
+      }
+    }
+    if (filtered.length === 0) {
+       list.innerHTML = '<div style="text-align:center; color:#9ca3af; padding:20px;">No notifications found</div>';
+       return;
+    }
+    list.innerHTML = filtered.map(n => `
+      <div style="background: ${n.is_read ? '#1f2937' : '#1e293b'}; padding: 10px; border-radius: 5px; margin-bottom: 8px; font-size: 13px; border-left: 3px solid ${n.is_read ? '#3b82f6' : '#f59e0b'};">
+        ${n.message}
+        <div style="font-size: 10px; color: #9ca3af; margin-top: 5px;">${new Date(n.created_at).toLocaleString()}</div>
+      </div>
+    `).join('');
+  }
 
   async function openReferralHistory() {
-    document.getElementById('referralHistoryPopup').style.display = 'flex';
-    const list = document.getElementById('referralsList');
-    list.innerHTML = '<p style="text-align:center; color:#9ca3af;">Loading...</p>';
+    document.getElementById('page-referral').style.display = 'flex';
+    document.getElementById('referralsList').innerHTML = '<p style="text-align:center; color:#9ca3af;">Loading...</p>';
     if(!currentUser) return;
-    
     try {
       const res = await fetch(`${BACKEND_URL}/api/referrals?phone=${currentUser.phone}`);
       const data = await res.json();
       if(data.success) {
         document.getElementById('refCount').innerText = data.referrals.length;
-        document.getElementById('refActive').innerText = data.active_referrals;
-        document.getElementById('refEarned').innerText = data.earned_amount || (data.active_referrals * 20); // Fallback estimate
+        document.getElementById('refActive').innerText = data.active_referrals || 0;
+        document.getElementById('refEarned').innerText = data.earned_amount || 0;
         
+        const list = document.getElementById('referralsList');
         if (data.referrals.length === 0) {
           list.innerHTML = '<div style="text-align:center; color:#9ca3af; font-size:12px; margin-top:20px;">No referrals yet</div>';
         } else {
@@ -469,39 +689,205 @@
             </div>
           `).join('');
         }
+      } else {
+        document.getElementById('referralsList').innerHTML = '<p style="text-align:center; color:#ef4444;">Error loading referrals</p>';
       }
     } catch(e) {
-      list.innerHTML = '<p style="text-align:center; color:#ef4444;">Error loading referrals</p>';
+      document.getElementById('referralsList').innerHTML = '<p style="text-align:center; color:#ef4444;">Error connecting to server</p>';
     }
   }
 
-  function closeReferralHistory() { document.getElementById('referralHistoryPopup').style.display = 'none'; }
+  function copyReferral() {
+    if (!currentUser) return;
+    const link = `https://swiftcrash.com/?ref=${currentUser.username}`;
+    navigator.clipboard.writeText(link).then(() => showNotification('Referral link copied!'));
+  }
 
-  // Call initMenu when page loads
+  async function submitQuickChangePassword() {
+    const newPin = document.getElementById('newPasswordInput').value;
+    const confirmPin = document.getElementById('confirmPasswordInput').value;
+    
+    if (!newPin || !confirmPin) { showNotification("Fill all fields", "error"); return; }
+    if (newPin !== confirmPin) { showNotification("Passwords do not match", "error"); return; }
+    if (newPin.length !== 6) { showNotification("PIN must be 6 digits", "error"); return; }
+
+    try {
+      const res = await fetch(`${BACKEND_URL}/change-pin`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone: currentUser.phone, oldPin: currentUser.pin, newPin })
+      });
+      const data = await res.json();
+      if(data.success) {
+        showNotification("Password updated successfully!");
+        currentUser.pin = newPin;
+        localStorage.setItem('swiftcrash_user', JSON.stringify(currentUser));
+        document.getElementById('newPasswordInput').value = '';
+        document.getElementById('confirmPasswordInput').value = '';
+        setTimeout(() => document.getElementById('page-password').style.display='none', 2000);
+      } else {
+        showNotification(data.error || "Update failed", "error");
+      }
+    } catch (e) {
+      showNotification("Error connecting to server", "error");
+    }
+  }
+
+  function signOut() {
+    localStorage.removeItem('swiftcrash_user');
+    window.location.href = 'index.html';
+  }
+
   document.addEventListener('DOMContentLoaded', initMenu);
+
 </script>
 
-  <!-- Toast Container -->
-  <div id="toast-container" style="position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 9999; display: flex; flex-direction: column; gap: 10px; width: 90%; max-width: 400px; pointer-events: none;"></div>
+  
+  <div id="toast-container"></div>
 
-  <!-- Notifications Popup -->
-  <div class="popup-overlay" id="notificationsPopup" style="display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center;" onclick="if(event.target===this) closeNotifications()">
-    <div class="popup-content" style="background: #111827; padding: 20px; border-radius: 12px; width: 90%; max-width: 400px; position: relative; max-height: 90vh; overflow-y: auto; border: 1px solid #1f2937;">
-      <span class="popup-close" style="position: absolute; top: 10px; right: 15px; color: white; cursor: pointer; font-size: 24px; font-weight: bold;" onclick="closeNotifications()">×</span>
-      <h3 style="margin-top:0; color:#fff; border-bottom:1px solid #374151; padding-bottom:10px;">Notifications</h3>
-      <div id="notificationsList" style="max-height:350px; overflow-y:auto; padding: 15px 20px; background: #0b0f19;">
-        <p style="text-align:center; color:#9ca3af; font-size: 14px; padding: 20px 0;">Loading notifications...</p>
+  <!-- Deposit Popup -->
+  <div class="popup-overlay" id="depositPopup">
+    <div class="popup-content">
+      <span class="popup-close" onclick="document.getElementById('depositPopup').style.display='none'">×</span>
+      <h2 style="margin-top:0;">Deposit via M-Pesa</h2>
+      <div class="form-group">
+        <label>M-Pesa Number</label>
+        <input type="text" class="form-control" id="depositPhone" readonly style="color:#9ca3af; background:#1f2937;">
+      </div>
+      <div class="form-group">
+        <label>Amount (Min KSH 1)</label>
+        <input type="number" class="form-control" id="depositAmount" value="1" min="1">
+      </div>
+      <div class="bet-presets">
+        <button class="preset" onclick="document.getElementById('depositAmount').value=100">100</button>
+        <button class="preset" onclick="document.getElementById('depositAmount').value=200">200</button>
+        <button class="preset" onclick="document.getElementById('depositAmount').value=500">500</button>
+        <button class="preset" onclick="document.getElementById('depositAmount').value=1000">1K</button>
+        <button class="preset" onclick="document.getElementById('depositAmount').value=5000">5K</button>
+      </div>
+      <p style="font-size: 14px; color: #9ca3af; text-align:center; margin-bottom: 15px;">Current Balance: <strong id="depositCurrentBalance" style="color:white;">KSH 0.00</strong></p>
+      
+      <div class="spinner" id="depositSpinner"></div>
+      <button class="btn-submit" id="submitDepositBtn" style="background:#22c55e;" onclick="submitDeposit()">Deposit</button>
+    </div>
+  </div>
+
+  <!-- Withdraw Popup -->
+  <div class="popup-overlay" id="withdrawPopup">
+    <div class="popup-content">
+      <span class="popup-close" onclick="document.getElementById('withdrawPopup').style.display='none'">×</span>
+      <h2 style="margin-top:0;">Withdraw to M-Pesa</h2>
+      <div class="form-group">
+        <label>M-Pesa Number</label>
+        <input type="text" class="form-control" id="withdrawPhone" readonly style="color:#9ca3af; background:#1f2937;">
+      </div>
+      <div class="form-group">
+        <label>Amount (Min KSH 100)</label>
+        <input type="number" class="form-control" id="withdrawAmount" value="100" min="100">
+      </div>
+      <div class="bet-presets">
+        <button class="preset" onclick="document.getElementById('withdrawAmount').value=100">100</button>
+        <button class="preset" onclick="document.getElementById('withdrawAmount').value=500">500</button>
+        <button class="preset" onclick="document.getElementById('withdrawAmount').value=1000">1K</button>
+        <button class="preset" onclick="document.getElementById('withdrawAmount').value=2000">2K</button>
+        <button class="preset" onclick="document.getElementById('withdrawAmount').value=5000">5K</button>
+      </div>
+      <p style="font-size: 14px; color: #9ca3af; text-align:center; margin-bottom: 15px;">Current Balance: <strong id="withdrawCurrentBalance" style="color:white;">KSH 0.00</strong></p>
+      
+      <div class="spinner" id="withdrawSpinner"></div>
+      <button class="btn-submit" id="submitWithdrawBtn" style="background:#f59e0b;" onclick="submitWithdraw()">Withdraw</button>
+    </div>
+  </div>
+
+  <!-- Transaction History Page -->
+  <div class="page-popup" id="page-transactions">
+    <div class="page-header">
+      <button class="page-back-btn" onclick="document.getElementById('page-transactions').style.display='none'">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg>
+      </button>
+      <h2 class="page-title">Transaction History</h2>
+      <div style="width: 40px;"></div>
+    </div>
+    <div class="page-content">
+      <input type="text" class="search-box" id="txSearch" placeholder="Search user code or description..." oninput="filterTransactions()">
+      <div class="tabs-container" id="txTabs">
+        <button class="tab-btn active" onclick="setTxTab('all')">All</button>
+        <button class="tab-btn" onclick="setTxTab('deposit')">Deposits</button>
+        <button class="tab-btn" onclick="setTxTab('withdrawal')">Withdrawals</button>
+        <button class="tab-btn" onclick="setTxTab('referral')">Referrals</button>
+      </div>
+      <div id="transactionsList"></div>
+    </div>
+  </div>
+
+  <!-- Users Bets Page -->
+  <div class="page-popup" id="page-bets">
+    <div class="page-header">
+      <button class="page-back-btn" onclick="document.getElementById('page-bets').style.display='none'">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg>
+      </button>
+      <h2 class="page-title">My Bets</h2>
+      <div style="width: 40px;"></div>
+    </div>
+    <div class="page-content">
+      <div class="tabs-container" id="betsTabs">
+        <button class="tab-btn active" onclick="setBetsTab('all')">All</button>
+        <button class="tab-btn" onclick="setBetsTab('win')">Win</button>
+        <button class="tab-btn" onclick="setBetsTab('lose')">Lose</button>
+      </div>
+      <div id="myBetsList"></div>
+      <div style="margin-top: 20px;">
+        <button style="width:100%; padding:15px; border-radius:8px; background:#22c55e; color:white; font-weight:bold; border:none; cursor:pointer;" onclick="window.location.href='index.html'">PLACE BET</button>
       </div>
     </div>
   </div>
 
-  <!-- Referral History Popup -->
-  <div class="popup-overlay" id="referralHistoryPopup" style="display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center;" onclick="if(event.target===this) closeReferralHistory()">
-    <div class="popup-content" style="background: #111827; padding: 20px; border-radius: 12px; width: 90%; max-width: 400px; position: relative; max-height: 90vh; overflow-y: auto; border: 1px solid #1f2937;">
-      <span class="popup-close" style="position: absolute; top: 10px; right: 15px; color: white; cursor: pointer; font-size: 24px; font-weight: bold;" onclick="closeReferralHistory()">×</span>
-      <h3 style="margin-top:0; color:#fff; border-bottom:1px solid #374151; padding-bottom:10px;">Referral History</h3>
+  <!-- Notifications Page -->
+  <div class="page-popup" id="page-notifications">
+    <div class="page-header">
+      <button class="page-back-btn" onclick="document.getElementById('page-notifications').style.display='none'">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg>
+      </button>
+      <h2 class="page-title">Notifications</h2>
+      <div style="width: 40px;"></div>
+    </div>
+    <div class="page-content">
+      <div class="tabs-container" id="notifTabs">
+        <button class="tab-btn active" onclick="setNotifTab('all')">All</button>
+        <button class="tab-btn" onclick="setNotifTab('deposit')">Deposits</button>
+        <button class="tab-btn" onclick="setNotifTab('withdrawal')">Withdrawal</button>
+        <button class="tab-btn" onclick="setNotifTab('alert')">Alerts</button>
+      </div>
+      <div id="notificationsList"></div>
+    </div>
+  </div>
+
+  <!-- Refer and Earn Page -->
+  <div class="page-popup" id="page-referral">
+    <div class="page-header">
+      <button class="page-back-btn" onclick="document.getElementById('page-referral').style.display='none'">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg>
+      </button>
+      <h2 class="page-title">Refer and Earn</h2>
+      <div style="width: 40px;"></div>
+    </div>
+    <div class="page-content">
+      <div style="text-align:center; padding:20px 0;">
+        <h3 style="color:#facc15; margin:0 0 10px 0;">Earn KSH 300.00</h3>
+        <p style="color:#9ca3af; font-size:14px;">Invite friends and earn for every active referral.</p>
+      </div>
+      <div class="card" style="display:flex; justify-content:space-between; align-items:center;">
+        <span id="referralLinkText" style="font-size:12px; color:#9ca3af; word-break:break-all;">https://swiftcrash.com/?ref=xxxx</span>
+        <button style="background:#3b82f6; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;" onclick="copyReferral()">Copy</button>
+      </div>
+      <div class="social-row">
+        <a href="#" class="social-btn social-ig">IG</a>
+        <a href="#" class="social-btn social-fb">FB</a>
+        <a href="#" class="social-btn social-x">X</a>
+        <a href="#" class="social-btn social-wa" style="background:#25D366;">WA</a>
+      </div>
       
-      <div style="background: #1f2937; padding: 15px; border-radius: 10px; margin-bottom: 15px; display: flex; justify-content: space-between;">
+      <div style="background: #1f2937; padding: 15px; border-radius: 10px; margin: 20px 0; display: flex; justify-content: space-between;">
         <div style="text-align: center;">
           <div style="color: #9ca3af; font-size: 12px; margin-bottom: 5px;">Total Referrals</div>
           <div style="color: #facc15; font-size: 20px; font-weight: bold;" id="refCount">0</div>
@@ -515,27 +901,60 @@
           <div style="color: #3b82f6; font-size: 20px; font-weight: bold;" id="refEarned">0</div>
         </div>
       </div>
-      
-      <div id="referralsList" style="max-height: 150px; overflow-y: auto;">
-        <p style="text-align:center; color:#9ca3af; font-size: 14px; padding: 20px 0;">Loading referrals...</p>
+      <h3 style="font-size:16px;">Referral History</h3>
+      <div id="referralsList"></div>
+    </div>
+  </div>
+
+  <!-- Support Page -->
+  <div class="page-popup" id="page-support">
+    <div class="page-header">
+      <button class="page-back-btn" onclick="document.getElementById('page-support').style.display='none'">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg>
+      </button>
+      <h2 class="page-title">Support</h2>
+      <div style="width: 40px;"></div>
+    </div>
+    <div class="page-content">
+      <p style="color:#9ca3af; font-size:14px; margin-bottom:20px;">Need help? Contact our support team.</p>
+      <a href="https://wa.me/254723308753" class="comm-btn comm-whatsapp" style="margin-bottom:15px; display:flex;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21l1.65-3.8a9 9 0 1 1 3.4 2.9L3 21"/><path d="M9 10a.5.5 0 0 0 1 0V9a.5.5 0 0 0-1 0v1Z"/><path d="M14 14a.5.5 0 0 0 1 0v-1a.5.5 0 0 0-1 0v1Z"/></svg>
+        WhatsApp Chat
+      </a>
+      <a href="#" class="comm-btn" style="background:#1877F2; margin-bottom:15px; display:flex;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+        Facebook Messenger
+      </a>
+      <a href="mailto:support@swiftcrash.com" class="comm-btn comm-call" style="margin-bottom:15px; display:flex;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+        Email Support
+      </a>
+    </div>
+  </div>
+
+  <!-- Change Password Page -->
+  <div class="page-popup" id="page-password">
+    <div class="page-header">
+      <button class="page-back-btn" onclick="document.getElementById('page-password').style.display='none'">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg>
+      </button>
+      <h2 class="page-title">Change Password</h2>
+      <div style="width: 40px;"></div>
+    </div>
+    <div class="page-content">
+      <div class="card">
+        <div class="form-group" style="margin-bottom:15px;">
+          <label style="display:block; margin-bottom:5px; color:#9ca3af; font-size:12px;">New Password (6 digits)</label>
+          <input type="password" id="newPasswordInput" class="search-box" placeholder="Enter new PIN" maxlength="6">
+        </div>
+        <div class="form-group" style="margin-bottom:15px;">
+          <label style="display:block; margin-bottom:5px; color:#9ca3af; font-size:12px;">Confirm Password</label>
+          <input type="password" id="confirmPasswordInput" class="search-box" placeholder="Confirm new PIN" maxlength="6">
+        </div>
+        <button style="width:100%; padding:15px; border-radius:8px; background:#3b82f6; color:white; font-weight:bold; border:none; cursor:pointer;" onclick="submitQuickChangePassword()">Update Password</button>
       </div>
     </div>
   </div>
 
-  <!-- Transaction History Popup -->
-  <div class="popup-overlay" id="transactionHistoryPopup" style="display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center;" onclick="if(event.target===this) closeTransactionHistory()">
-    <div class="popup-content" style="background: #111827; padding: 20px; border-radius: 12px; width: 90%; max-width: 400px; position: relative; max-height: 90vh; overflow-y: auto; border: 1px solid #1f2937;">
-      <span class="popup-close" style="position: absolute; top: 10px; right: 15px; color: white; cursor: pointer; font-size: 24px; font-weight: bold;" onclick="closeTransactionHistory()">×</span>
-      <h3 style="margin-top:0; color:#fff; border-bottom:1px solid #374151; padding-bottom:10px;">Transaction History</h3>
-      <div id="transactionsList" style="max-height: 350px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; margin-top: 15px;">
-        <p style="text-align:center; color:#9ca3af; font-size: 14px; padding: 20px 0;">Loading transactions...</p>
-      </div>
-    </div>
-  </div>
-
-  <!-- My Bets Popup -->
-  <div class="popup-overlay" id="myBetsPopup" style="display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center;" onclick="if(event.target===this) closeMyBets()">
-    <div class="popup-content" style="background: #111827; padding: 20px; border-radius: 12px; width: 90%; max-width: 400px; position: relative; max-height: 90vh; overflow-y: auto; border: 1px solid #1f2937;">
-      <span class="popup-close" style="position: absolute; top: 10px; right: 15px; color: white; cursor: pointer; font-size: 24px; font-weight: bold;" onclick="closeMyBets()">×</span>
-      <h3 style="margin-top:0; color:#fff; border-bottom:1px solid #374151; padding-bottom:10px;">My Bets</h3>
-      <div id="myBetsList" style="max-height: 350px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; margin-top: 15
+</body>
+          </html>
