@@ -35,13 +35,15 @@
     .btn-share { background-color: white; color: #f97316; padding: 5px 10px; border-radius: 4px; text-decoration: none; font-size: 12px; cursor: pointer; }
     
     /* Header */
-    .header { padding: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #1f2937; background: #111827; }
-    .logo { color: #f59e0b; font-size: 20px; font-weight: 900; display: flex; align-items: center; gap: 5px; }
+    .header { padding: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #1f2937; background: #111827; position: relative; box-shadow: 0 4px 20px rgba(245, 158, 11, 0.15); }
+    .logo { color: #f59e0b; font-size: 20px; font-weight: 900; display: flex; align-items: center; gap: 5px; filter: drop-shadow(0 0 5px rgba(245, 158, 11, 0.3)); }
     .header-actions { display: flex; gap: 10px; align-items: center; }
-    .btn-deposit { background-color: #22c55e; color: white; padding: 8px 15px; border-radius: 6px; font-weight: bold; border: none; cursor: pointer; display: none; }
-    .btn-withdraw { background-color: #f59e0b; color: white; padding: 8px 15px; border-radius: 6px; font-weight: bold; border: none; cursor: pointer; display: none; margin-top: 5px; }
-    .btn-login-header { background-color: #3b82f6; color: white; padding: 8px 15px; border-radius: 6px; font-weight: bold; border: none; cursor: pointer; }
-    .balance { font-weight: bold; font-size: 14px; color: #22c55e; display: none; }
+    .btn-deposit { background-color: #22c55e; color: white; padding: 8px 15px; border-radius: 6px; font-weight: bold; border: none; cursor: pointer; display: none; transition: 0.3s; box-shadow: 0 0 10px rgba(34, 197, 94, 0.2); }
+    .btn-deposit:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(34, 197, 94, 0.4); }
+    .btn-withdraw { background-color: #f59e0b; color: white; padding: 8px 15px; border-radius: 6px; font-weight: bold; border: none; cursor: pointer; display: none; margin-top: 5px; transition: 0.3s; box-shadow: 0 0 10px rgba(245, 158, 11, 0.2); }
+    .btn-withdraw:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4); }
+    .btn-login-header { background-color: #3b82f6; color: white; padding: 8px 15px; border-radius: 6px; font-weight: bold; border: none; cursor: pointer; box-shadow: 0 0 15px rgba(59, 130, 246, 0.3); }
+    .balance { font-weight: bold; font-size: 14px; color: #22c55e; display: none; text-shadow: 0 0 8px rgba(34, 197, 94, 0.3); }
     .profile-icon { background: #374151; padding: 5px 10px; border-radius: 50%; cursor: pointer; display: none; }
 
     /* Odds History */
@@ -240,13 +242,16 @@
         <span id="balanceText">KSH 0.00</span>
         <svg id="refreshIcon" onclick="manualRefresh()" style="cursor:pointer; transition: transform 0.5s;" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 21v-5h5"/></svg>
       </div>
-      <div id="hamburgerMenuIcon" style="display:none; cursor:pointer; margin-left:10px;" onclick="toggleHamburger()">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+      <div id="hamburgerMenuIcon" style="display:none; cursor:pointer; margin-left:10px; padding: 5px; border-radius: 50%; transition: background 0.3s;" onclick="toggleHamburger(event)">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg>
       </div>
     </div>
   </div>
 
-  <div id="hamburgerDropdown" style="display:none; background:#1f2937; position:absolute; right:10px; top:75px; z-index:100; border-radius:8px; padding:10px; box-shadow:0 4px 6px rgba(0,0,0,0.3); border:1px solid #374151; min-width:150px;">
+  <div id="hamburgerDropdown" style="display:none; background:#1f2937; position:absolute; right:10px; top:80px; z-index:10001; border-radius:12px; padding:15px; box-shadow:0 10px 25px rgba(0,0,0,0.5), 0 0 15px rgba(245, 158, 11, 0.1); border:1px solid #374151; min-width:180px; animation: slideIn 0.3s ease-out;">
+      <style>
+        @keyframes slideIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+      </style>
       <button class="btn-deposit" id="headerDepositBtn" style="width:100%; margin-bottom:5px; display:block;" onclick="openDeposit(); toggleHamburger();">+ DEPOSIT</button>
       <button class="btn-withdraw" id="headerWithdrawBtn" style="width:100%; margin-bottom:10px; display:block;" onclick="openWithdraw(); toggleHamburger();">- WITHDRAW</button>
       
@@ -305,15 +310,16 @@
     };
 
     let hamburgerTimeout;
-    function toggleHamburger() {
+    function toggleHamburger(event) {
+      if (event) event.stopPropagation();
       const drop = document.getElementById('hamburgerDropdown');
       const icon = document.getElementById('hamburgerMenuIcon');
-      const hamburgerSVG = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>';
-      const closeSVG = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>';
+      const dotsSVG = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg>';
+      const closeSVG = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>';
       
       if (drop.style.display === 'block') {
          drop.style.display = 'none';
-         if (icon) icon.innerHTML = hamburgerSVG;
+         if (icon) icon.innerHTML = dotsSVG;
          clearTimeout(hamburgerTimeout);
       } else {
          drop.style.display = 'block';
@@ -321,7 +327,7 @@
          // close after 20 secs
          hamburgerTimeout = setTimeout(() => {
              drop.style.display = 'none';
-             if (icon) icon.innerHTML = hamburgerSVG;
+             if (icon) icon.innerHTML = dotsSVG;
          }, 20000);
       }
     }
@@ -330,10 +336,10 @@
     document.addEventListener('click', function(event) {
       const drop = document.getElementById('hamburgerDropdown');
       const icon = document.getElementById('hamburgerMenuIcon');
-      const hamburgerSVG = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>';
+      const dotsSVG = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg>';
       if (drop && icon && drop.style.display === 'block' && !drop.contains(event.target) && !icon.contains(event.target)) {
         drop.style.display = 'none';
-        icon.innerHTML = hamburgerSVG;
+        icon.innerHTML = dotsSVG;
         clearTimeout(hamburgerTimeout);
       }
     });
