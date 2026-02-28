@@ -482,7 +482,7 @@
     // Initialize Menu
     window.onload = function() {
       // Get user from localStorage (how index.html likely stores it)
-      const userStr = localStorage.getItem('user');
+      const userStr = localStorage.getItem('swiftcrash_user');
       if (userStr) {
         try {
           currentUser = JSON.parse(userStr);
