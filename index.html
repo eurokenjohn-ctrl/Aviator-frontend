@@ -454,6 +454,75 @@
     </div>
   </div>
 
+  <!-- Fake Stats Card -->
+  <div class="fake-stats-card" style="margin: 10px; background: #111827; border-radius: 12px; padding: 15px; border: 1px solid #1f2937;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+      <div style="display: flex; align-items: center; position: relative; height: 32px; width: 80px;">
+        <img src="Screenshot_20260228_091438_Chrome_1772259748034.jpg" style="width: 32px; height: 32px; border-radius: 50%; border: 2px solid #22c55e; position: absolute; left: 0; z-index: 3; object-fit: cover;">
+        <img src="Screenshot_20260228_092105_Chrome_1772259748292.jpg" style="width: 32px; height: 32px; border-radius: 50%; border: 2px solid #22c55e; position: absolute; left: 18px; z-index: 2; object-fit: cover;">
+        <img src="Screenshot_20260228_092119_Chrome_1772259748348.jpg" style="width: 32px; height: 32px; border-radius: 50%; border: 2px solid #22c55e; position: absolute; left: 36px; z-index: 1; object-fit: cover;">
+      </div>
+      <div style="text-align: right;">
+        <div id="fakeTotalWin" style="font-size: 24px; font-weight: bold; color: white;">0.00</div>
+      </div>
+    </div>
+    <div style="display: flex; justify-content: space-between; font-size: 14px; color: #9ca3af; margin-bottom: 5px;">
+      <div><span id="fakeTotalBets">0/0</span> Bets</div>
+      <div>Total win KES</div>
+    </div>
+    <div style="width: 100%; height: 8px; background: #1f2937; border-radius: 4px; overflow: hidden;">
+      <div id="fakeProgressBar" style="width: 0%; height: 100%; background: #65a30d; transition: width 0.3s linear;"></div>
+    </div>
+  </div>
+
+  <script>
+    let fakeTotalBetsCount = 0;
+    let fakeMaxBetsCount = 0;
+    let fakeTotalWinAmount = 0.00;
+
+    function resetFakeStats() {
+      fakeTotalBetsCount = 0;
+      fakeMaxBetsCount = Math.floor(Math.random() * 3000) + 2000;
+      fakeTotalWinAmount = 0.00;
+      
+      const betsEl = document.getElementById('fakeTotalBets');
+      const winEl = document.getElementById('fakeTotalWin');
+      const barEl = document.getElementById('fakeProgressBar');
+      
+      if(betsEl) betsEl.innerText = `${fakeTotalBetsCount}/${fakeMaxBetsCount}`;
+      if(winEl) winEl.innerText = fakeTotalWinAmount.toFixed(2);
+      if(barEl) barEl.style.width = '0%';
+    }
+
+    function updateFakeStats() {
+      if (typeof gameState !== 'undefined' && gameState === 'RUNNING') {
+        let newBets = Math.floor(Math.random() * 50) + 10;
+        fakeTotalBetsCount += newBets;
+        if (fakeTotalBetsCount > fakeMaxBetsCount) fakeTotalBetsCount = fakeMaxBetsCount;
+
+        let winIncrease = (Math.random() * 5000) + 1000;
+        fakeTotalWinAmount += winIncrease;
+
+        let progressPercent = (fakeTotalBetsCount / fakeMaxBetsCount) * 100;
+
+        const betsEl = document.getElementById('fakeTotalBets');
+        const winEl = document.getElementById('fakeTotalWin');
+        const barEl = document.getElementById('fakeProgressBar');
+
+        if(betsEl) betsEl.innerText = `${fakeTotalBetsCount}/${fakeMaxBetsCount}`;
+        if(winEl) winEl.innerText = fakeTotalWinAmount.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+        if(barEl) barEl.style.width = `${progressPercent}%`;
+      } else if (typeof gameState !== 'undefined' && gameState === 'WAITING') {
+        if (fakeTotalBetsCount !== 0) {
+            resetFakeStats();
+        }
+      }
+    }
+
+    resetFakeStats();
+    setInterval(updateFakeStats, 300);
+  </script>
+
   <!-- Footer -->
   <div class="footer">
     <a href="index.html" class="active">
