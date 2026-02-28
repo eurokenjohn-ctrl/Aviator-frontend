@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Swiftcrash - My Account / Menu</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     body { background-color: #09090b; color: white; font-family: sans-serif; margin: 0; padding-bottom: 80px; }
     
@@ -211,9 +212,9 @@
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
       </div>
       <div id="acc-info" style="display:none; padding: 15px; background: #1f2937; border-bottom: 1px solid #374151;">
-        <div style="padding: 5px 0; color: #9ca3af;">Terms & Conditions</div>
-        <div style="padding: 5px 0; color: #9ca3af;">Privacy Policy</div>
-        <div style="padding: 5px 0; color: #9ca3af;">Responsible Gaming</div>
+        <div style="padding: 5px 0; color: #9ca3af; cursor: pointer;" onclick="document.getElementById('page-terms').style.display='flex'">Terms & Conditions</div>
+        <div style="padding: 5px 0; color: #9ca3af; cursor: pointer;" onclick="document.getElementById('page-privacy').style.display='flex'">Privacy Policy</div>
+        <div style="padding: 5px 0; color: #9ca3af; cursor: pointer;" onclick="document.getElementById('page-responsible').style.display='flex'">Responsible Gaming</div>
       </div>
 
       <div class="list-item" onclick="toggleAccordion('acc-18')">
@@ -227,11 +228,11 @@
 
     <!-- Social Media -->
     <div class="social-row">
-      <a href="https://instagram.com/" target="_blank" class="social-btn social-ig">IG</a>
-      <a href="https://facebook.com/" target="_blank" class="social-btn social-fb">FB</a>
-      <a href="https://x.com/" target="_blank" class="social-btn social-x">X</a>
-      <a href="https://tiktok.com/" target="_blank" class="social-btn social-tk">TK</a>
-      <a href="https://youtube.com/" target="_blank" class="social-btn social-yt">YT</a>
+      <a href="https://instagram.com/" target="_blank" class="social-btn social-ig"><i class="fab fa-instagram fa-lg"></i></a>
+      <a href="https://facebook.com/" target="_blank" class="social-btn social-fb"><i class="fab fa-facebook-f fa-lg"></i></a>
+      <a href="https://x.com/" target="_blank" class="social-btn social-x"><i class="fa-brands fa-x-twitter fa-lg"></i></a>
+      <a href="https://tiktok.com/" target="_blank" class="social-btn social-tk"><i class="fab fa-tiktok fa-lg"></i></a>
+      <a href="https://youtube.com/" target="_blank" class="social-btn social-yt"><i class="fab fa-youtube fa-lg"></i></a>
     </div>
 
     <!-- Info Boxes (Pay With / Age Limit) -->
@@ -298,16 +299,6 @@
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 2px;"><path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a8 8 0 0 1-5 7.96V16a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v5.96A8 8 0 0 1 2 15V7"/><path d="M22 10.5v1.07a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2V10.5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2Z"/></svg>
       Wallet
     </a>
-    <div style="position:relative; display:flex; flex-direction:column; align-items:center; justify-content:center;">
-      <a href="javascript:void(0)" onclick="document.getElementById('menuDropdown').style.display = document.getElementById('menuDropdown').style.display === 'block' ? 'none' : 'block'" style="display:flex; flex-direction:column; align-items:center; color:#9ca3af; text-decoration:none; font-size:12px;">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 2px;"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
-        Menu
-      </a>
-      <div id="menuDropdown" style="display:none; position:absolute; bottom:50px; right:0; background:#1f2937; border:1px solid #374151; border-radius:8px; width:120px; z-index:100; overflow:hidden; box-shadow:0 4px 6px rgba(0,0,0,0.3);">
-        <a href="Menu.html" style="display:flex; align-items:center; padding:12px; color:white; text-decoration:none; border-bottom:1px solid #374151; font-size:14px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:8px;"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>Full Menu</a>
-        <a href="#" onclick="openAdmin(); document.getElementById('menuDropdown').style.display='none'" style="display:flex; align-items:center; padding:12px; color:white; text-decoration:none; font-size:14px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:8px;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Admin</a>
-      </div>
-    </div>
   </div>
 
   <script>
@@ -368,6 +359,8 @@
         const refLink = `https://swiftcrash.com/?ref=${currentUser.username}`;
         const refEl = document.getElementById('referralLinkText');
         if (refEl) refEl.innerText = refLink;
+        const refCodeEl = document.getElementById('referralCodeText');
+        if (refCodeEl) refCodeEl.innerText = currentUser.username;
         
       } catch(e) {}
     } else {
@@ -956,16 +949,18 @@
       <div style="text-align:center; padding:20px 0;">
         <h3 style="color:#facc15; margin:0 0 10px 0;">Earn KSH 300.00</h3>
         <p style="color:#9ca3af; font-size:14px;">Invite friends and earn for every active referral.</p>
+        <p style="color:#22c55e; font-size:13px; margin-top:10px; font-weight:bold;">Users earn KSH 29 for each user they refer and 5% lifetime reward commission for each user who deposits.</p>
       </div>
+      <div style="margin-bottom: 10px; color: white; font-weight: bold; font-size: 14px; text-align: center;">Your Referral Code: <span id="referralCodeText" style="color: #facc15;">xxxx</span></div>
       <div class="card" style="display:flex; justify-content:space-between; align-items:center;">
         <span id="referralLinkText" style="font-size:12px; color:#9ca3af; word-break:break-all;">https://swiftcrash.com/?ref=xxxx</span>
         <button style="background:#3b82f6; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;" onclick="copyReferral()">Copy</button>
       </div>
       <div class="social-row">
-        <a href="#" class="social-btn social-ig">IG</a>
-        <a href="#" class="social-btn social-fb">FB</a>
-        <a href="#" class="social-btn social-x">X</a>
-        <a href="#" class="social-btn social-wa" style="background:#25D366;">WA</a>
+        <a href="#" class="social-btn social-ig"><i class="fab fa-instagram fa-lg"></i></a>
+        <a href="#" class="social-btn social-fb"><i class="fab fa-facebook-f fa-lg"></i></a>
+        <a href="#" class="social-btn social-x"><i class="fa-brands fa-x-twitter fa-lg"></i></a>
+        <a href="#" class="social-btn social-wa" style="background:#25D366;"><i class="fab fa-whatsapp fa-lg"></i></a>
       </div>
       
       <div style="background: #1f2937; padding: 15px; border-radius: 10px; margin: 20px 0; display: flex; justify-content: space-between;">
@@ -1034,6 +1029,65 @@
         </div>
         <button style="width:100%; padding:15px; border-radius:8px; background:#3b82f6; color:white; font-weight:bold; border:none; cursor:pointer;" onclick="submitQuickChangePassword()">Update Password</button>
       </div>
+    </div>
+  </div>
+
+  <!-- Terms and Conditions Popup -->
+  <div class="page-popup" id="page-terms">
+    <div class="page-header">
+      <button class="page-back-btn" onclick="document.getElementById('page-terms').style.display='none'">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg>
+      </button>
+      <h2 class="page-title">Terms & Conditions</h2>
+      <div style="width: 40px;"></div>
+    </div>
+    <div class="page-content" style="scroll-behavior: smooth;">
+      <h3 style="color:#facc15;">1. Introduction</h3>
+      <p style="color:#9ca3af; font-size:14px; line-height:1.5;">Welcome to Swiftcrash. By using our platform, you agree to these Terms and Conditions. Please read them carefully.</p>
+      <h3 style="color:#facc15;">2. Account Registration</h3>
+      <p style="color:#9ca3af; font-size:14px; line-height:1.5;">You must be 18 years or older to create an account. You are responsible for keeping your login credentials secure.</p>
+      <h3 style="color:#facc15;">3. Deposits and Withdrawals</h3>
+      <p style="color:#9ca3af; font-size:14px; line-height:1.5;">All transactions are processed in KSH via MPESA. Minimum limits apply.</p>
+      <h3 style="color:#facc15;">4. Gameplay and Fairness</h3>
+      <p style="color:#9ca3af; font-size:14px; line-height:1.5;">Swiftcrash uses a provably fair system. Multipliers and crash points are generated independently and transparently.</p>
+    </div>
+  </div>
+
+  <!-- Privacy Policy Popup -->
+  <div class="page-popup" id="page-privacy">
+    <div class="page-header">
+      <button class="page-back-btn" onclick="document.getElementById('page-privacy').style.display='none'">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg>
+      </button>
+      <h2 class="page-title">Privacy Policy</h2>
+      <div style="width: 40px;"></div>
+    </div>
+    <div class="page-content" style="scroll-behavior: smooth;">
+      <h3 style="color:#facc15;">1. Information We Collect</h3>
+      <p style="color:#9ca3af; font-size:14px; line-height:1.5;">We collect your phone number, username, and transaction data to provide our services and ensure compliance.</p>
+      <h3 style="color:#facc15;">2. How We Use Information</h3>
+      <p style="color:#9ca3af; font-size:14px; line-height:1.5;">Your data is used to process payments, manage your account, and improve our services.</p>
+      <h3 style="color:#facc15;">3. Data Security</h3>
+      <p style="color:#9ca3af; font-size:14px; line-height:1.5;">We implement standard security protocols to protect your personal data against unauthorized access.</p>
+    </div>
+  </div>
+
+  <!-- Responsible Gaming Popup -->
+  <div class="page-popup" id="page-responsible">
+    <div class="page-header">
+      <button class="page-back-btn" onclick="document.getElementById('page-responsible').style.display='none'">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg>
+      </button>
+      <h2 class="page-title">Responsible Gaming</h2>
+      <div style="width: 40px;"></div>
+    </div>
+    <div class="page-content" style="scroll-behavior: smooth;">
+      <h3 style="color:#facc15;">1. Play for Fun</h3>
+      <p style="color:#9ca3af; font-size:14px; line-height:1.5;">Gambling should be entertaining and not seen as a way to make money. Always play within your limits.</p>
+      <h3 style="color:#facc15;">2. Set Limits</h3>
+      <p style="color:#9ca3af; font-size:14px; line-height:1.5;">Keep track of the time and money you spend. Do not chase your losses.</p>
+      <h3 style="color:#facc15;">3. Need Help?</h3>
+      <p style="color:#9ca3af; font-size:14px; line-height:1.5;">If you feel gambling is affecting your life negatively, seek help immediately. Visit www.responsiblegambling.or.ke or contact our support.</p>
     </div>
   </div>
 
