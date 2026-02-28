@@ -1822,6 +1822,17 @@
     const multDisplay = document.getElementById('multiplier');
     const flewAwayText = document.getElementById('flewAwayText');
     const betBtn = document.getElementById('betBtn');
+     // Sync game state when tab becomes visible
+    document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') {
+            // When returning to the tab, we reset the local timer to match the server's current multiplier
+            if (gameState === 'RUNNING' && currentMultiplier > 1) {
+                gameStartTime = Date.now() - (Math.log(currentMultiplier) / 0.08 * 1000);
+            // Clear the points array to prevent the "jump" line across the screen
+                planePoints = [];
+            }
+        }
+    });
 
     function startGameLoop() {
       initGameSSE();
@@ -1841,15 +1852,15 @@
         let t = (Date.now() - gameStartTime) / 1000;
         let rate = 0.08; // Match the backend growth rate perfectly
         let speed = 60; // Horizontal speed
-        let verticalScale = 80; // Adjusted scale for a slightly flatter curve
+        let verticalScale = 120; // Raised the curve height to match the green line in the screenshot
         
         // Pure exponential math for the visual curve
         let visualM = Math.exp(rate * t);
 
         // Hovering effect (Up and Down oscillation)
         // Only apply significant oscillation when the plane is further along
-        let hoverAmp = Math.min(5, t * 2); 
-        let hoverY = Math.sin(Date.now() / 200) * hoverAmp;
+        let hoverAmp = 0; 
+        let hoverY = 0;
         
         // Text display sync
         let displayM = visualM;
