@@ -112,6 +112,39 @@
     
     .spinner { display: none; margin: 10px auto; border: 4px solid rgba(255,255,255,0.1); border-left-color: #f97316; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; }
     @keyframes spin { 100% { transform: rotate(360deg); } }
+    @keyframes pulse { 0% { transform: scale(1); box-shadow: 0 0 10px rgba(245, 158, 11, 0.4); } 50% { transform: scale(1.05); box-shadow: 0 0 20px rgba(245, 158, 11, 0.8); } 100% { transform: scale(1); box-shadow: 0 0 10px rgba(245, 158, 11, 0.4); } }
+    @keyframes glow { 0%, 100% { text-shadow: 0 0 5px rgba(245, 158, 11, 0.5), 0 0 10px rgba(245, 158, 11, 0.3); } 50% { text-shadow: 0 0 15px rgba(245, 158, 11, 0.9), 0 0 25px rgba(245, 158, 11, 0.6); } }
+    @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+    .animate-logo { animation: glow 2s ease-in-out infinite, float 3s ease-in-out infinite; display: inline-flex; align-items: center; }
+    .loading-glow { position: relative; }
+    .loading-glow::after { content: ''; position: absolute; inset: -20px; background: radial-gradient(circle, rgba(245, 158, 11, 0.15) 0%, transparent 70%); z-index: -1; animation: pulse 3s infinite; }
+    
+    /* Advanced Spinner */
+    .advanced-spinner {
+      width: 50px;
+      height: 50px;
+      display: inline-block;
+      position: relative;
+    }
+    .advanced-spinner::after, .advanced-spinner::before {
+      content: '';  
+      box-sizing: border-box;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      border: 3px solid #f59e0b;
+      position: absolute;
+      left: 0;
+      top: 0;
+      animation: animloader 2s linear infinite;
+    }
+    .advanced-spinner::after {
+      animation-delay: 1s;
+    }
+    @keyframes animloader {
+      0% { transform: scale(0); opacity: 1; }
+      100% { transform: scale(1); opacity: 0; }
+    }
 
     /* Switch toggle */
     .switch { position: relative; display: inline-block; width: 40px; height: 20px; }
@@ -154,11 +187,23 @@
 
   <!-- Loading Screen -->
   <div id="loadingScreen" style="position: fixed; inset: 0; background: #000; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-    <h1 class="logo" style="font-size: 32px;">👑 Swiftcrash</h1>
-    <div style="width: 200px; height: 5px; background: #333; border-radius: 5px; margin-top: 20px; overflow: hidden;">
-      <div id="progressBar" style="width: 0%; height: 100%; background: #f59e0b; transition: width 0.1s;"></div>
+    <div class="loading-glow">
+      <h1 class="logo animate-logo" style="font-size: 36px; margin-bottom: 30px;">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="48" height="48" style="margin-right: 12px; filter: drop-shadow(0 0 8px rgba(245, 158, 11, 0.6));">
+          <path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-.5-.5-2.5 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.2-1.1.6L3 8l6.2 3.8L6.5 14 3.8 13c-.4-.1-.8.2-1 .5L2 14.5l4.5 3 3 4.5 1-1c.3-.2.6-.6.5-1L10 17.5l2.2-2.7 8.2 6.2c.4.3.8-.1.7-.5l-1.2-4.3z"/>
+        </svg>
+        Swiftcrash
+      </h1>
     </div>
-    <p id="loadingText" style="margin-top: 15px; color: #9ca3af; font-size: 14px;">Preparing loading...</p>
+    
+    <div id="advancedLoader" style="display: none; margin-bottom: 20px;">
+      <span class="advanced-spinner"></span>
+    </div>
+
+    <div id="progressContainer" style="width: 220px; height: 6px; background: #1f2937; border-radius: 10px; overflow: hidden; box-shadow: inset 0 1px 3px rgba(0,0,0,0.5);">
+      <div id="progressBar" style="width: 0%; height: 100%; background: linear-gradient(90deg, #f59e0b, #fbbf24); transition: width 0.1s; box-shadow: 0 0 10px rgba(245, 158, 11, 0.5);"></div>
+    </div>
+    <p id="loadingText" style="margin-top: 15px; color: #9ca3af; font-size: 14px; font-weight: 500; letter-spacing: 0.5px;">Initializing game engine...</p>
   </div>
 
   <!-- Top Bar -->
@@ -183,12 +228,12 @@
     <div id="referredByContainer" style="margin-top: 15px; font-size: 14px; display: none;">
       REFERRED BY: <span id="referredByUsername" style="color: #f59e0b; font-weight: bold;"></span>
     </div>
-    <button style="width: 100%; margin-top: 15px; padding: 10px; background: #374151; color: white; border: none; border-radius: 5px; font-weight: bold; cursor: pointer;" onclick="openReferralHistory()">REFERRAL HISTORY</button>
+    <button style="width: 100%; margin-top: 15px; padding: 12px; background: linear-gradient(135deg, #f59e0b, #f97316); color: white; border: none; border-radius: 8px; font-weight: 900; font-size: 16px; cursor: pointer; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4); text-transform: uppercase; animation: pulse 2s infinite;" onclick="openReferralHistory()">REFERRAL HISTORY</button>
   </div>
 
   <!-- Header -->
   <div class="header">
-    <div class="logo"><span style="color:#facc15">👑</span> Swiftcrash</div>
+    <div class="logo"><span style="color:#facc15"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="24" height="24"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-.5-.5-2.5 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.2-1.1.6L3 8l6.2 3.8L6.5 14 3.8 13c-.4-.1-.8.2-1 .5L2 14.5l4.5 3 3 4.5 1-1c.3-.2.6-.6.5-1L10 17.5l2.2-2.7 8.2 6.2c.4.3.8-.1.7-.5l-1.2-4.3z"/></svg></span> Swiftcrash</div>
     <div class="header-actions">
       <button class="btn-login-header" id="headerLoginBtn" onclick="openAuth('login')">Login</button>
       <div class="balance" id="headerBalance" style="display:none; align-items:center; gap:5px;">
@@ -201,7 +246,7 @@
     </div>
   </div>
 
-  <div id="hamburgerDropdown" style="display:none; background:#1f2937; position:absolute; right:10px; top:60px; z-index:100; border-radius:8px; padding:10px; box-shadow:0 4px 6px rgba(0,0,0,0.3); border:1px solid #374151; min-width:150px;">
+  <div id="hamburgerDropdown" style="display:none; background:#1f2937; position:absolute; right:10px; top:75px; z-index:100; border-radius:8px; padding:10px; box-shadow:0 4px 6px rgba(0,0,0,0.3); border:1px solid #374151; min-width:150px;">
       <button class="btn-deposit" id="headerDepositBtn" style="width:100%; margin-bottom:5px; display:block;" onclick="openDeposit(); toggleHamburger();">+ DEPOSIT</button>
       <button class="btn-withdraw" id="headerWithdrawBtn" style="width:100%; margin-bottom:10px; display:block;" onclick="openWithdraw(); toggleHamburger();">- WITHDRAW</button>
       
@@ -262,14 +307,21 @@
     let hamburgerTimeout;
     function toggleHamburger() {
       const drop = document.getElementById('hamburgerDropdown');
+      const icon = document.getElementById('hamburgerMenuIcon');
+      const hamburgerSVG = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>';
+      const closeSVG = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>';
+      
       if (drop.style.display === 'block') {
          drop.style.display = 'none';
+         if (icon) icon.innerHTML = hamburgerSVG;
          clearTimeout(hamburgerTimeout);
       } else {
          drop.style.display = 'block';
+         if (icon) icon.innerHTML = closeSVG;
          // close after 20 secs
          hamburgerTimeout = setTimeout(() => {
              drop.style.display = 'none';
+             if (icon) icon.innerHTML = hamburgerSVG;
          }, 20000);
       }
     }
@@ -278,8 +330,10 @@
     document.addEventListener('click', function(event) {
       const drop = document.getElementById('hamburgerDropdown');
       const icon = document.getElementById('hamburgerMenuIcon');
+      const hamburgerSVG = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>';
       if (drop && icon && drop.style.display === 'block' && !drop.contains(event.target) && !icon.contains(event.target)) {
         drop.style.display = 'none';
+        icon.innerHTML = hamburgerSVG;
         clearTimeout(hamburgerTimeout);
       }
     });
@@ -543,7 +597,7 @@
         if(winEl) winEl.innerText = fakeTotalWinAmount.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
         if(barEl) barEl.style.width = `${progressPercent}%`;
 
-        if (Math.random() > 0.7 && currentFakeAvatars.length > 0) {
+        if (Math.random() > 0.7 && currentFakeAvatars.length > 4) {
           currentFakeAvatars.pop();
           renderFakeAvatars();
         }
@@ -553,7 +607,7 @@
             resetFakeStats();
         }
 
-        if (Math.random() > 0.4 && currentFakeAvatars.length < 4) {
+        if (Math.random() > 0.4 && currentFakeAvatars.length < 7) {
           const randomAv = fakeAvatarImages[Math.floor(Math.random() * fakeAvatarImages.length)];
           if (!currentFakeAvatars.includes(randomAv)) {
             currentFakeAvatars.push(randomAv);
@@ -561,6 +615,11 @@
           }
         }
 
+      } else if (typeof gameState !== 'undefined' && gameState === 'CRASHED') {
+        if (currentFakeAvatars.length > 1) {
+          currentFakeAvatars = [currentFakeAvatars[0]];
+          renderFakeAvatars();
+        }
       }
     }
 
@@ -1006,9 +1065,9 @@
       <h2 style="margin-top:0;">Refer & Earn ✨</h2>
       
       <div style="background: #16a34a; padding: 15px; border-radius: 10px; margin-bottom: 15px;">
-        <h3 style="margin: 0 0 5px 0; color: white;">5% Commission Rate</h3>
-        <p style="margin: 0; font-size: 14px; color: #dcfce7;">Earn on Every Deposit!</p>
-        <p style="margin: 5px 0 0 0; font-size: 12px; color: #dcfce7;">Share your link, friends deposit, you earn. It's that simple! 💰</p>
+        <h3 style="margin: 0 0 5px 0; color: white;">Earn KSH 20 & 5% Lifetime Commission!</h3>
+        <p style="margin: 0; font-size: 14px; color: #dcfce7;">Earn KSH 20 instantly for each referred user.</p>
+        <p style="margin: 5px 0 0 0; font-size: 12px; color: #dcfce7;">Plus, earn a massive 5% lifetime commission on every deposit your friend makes. Share your link and start earning today! 💰</p>
       </div>
 
       <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 15px; text-align: center;">
@@ -1273,6 +1332,8 @@
       let progress = 0;
       const bar = document.getElementById('progressBar');
       const text = document.getElementById('loadingText');
+      const progressContainer = document.getElementById('progressContainer');
+      const advancedLoader = document.getElementById('advancedLoader');
       
       const interval = setInterval(() => {
         if (progress < 60) {
@@ -1282,17 +1343,32 @@
           clearInterval(interval);
           text.innerText = 'Connecting to server...';
           
+          // Show advanced spinner when connecting
+          if (progressContainer) progressContainer.style.display = 'none';
+          if (advancedLoader) advancedLoader.style.display = 'block';
+          
           // Ping the server to wake it up (solves Render cold start issue)
           fetch(`${BACKEND_URL}/`)
             .then(() => {
-              // Server is awake, complete the loading bar
+              // Server is awake, hide spinner and complete the loading bar
+              if (advancedLoader) advancedLoader.style.display = 'none';
+              if (progressContainer) progressContainer.style.display = 'block';
+              
               const finishInterval = setInterval(() => {
                 progress += 5;
                 bar.style.width = progress + '%';
                 if(progress >= 100) {
                   clearInterval(finishInterval);
-                  document.getElementById('loadingScreen').style.display = 'none';
-                  initApp();
+                  text.innerText = 'Ready to Play!';
+                  setTimeout(() => {
+                    const screen = document.getElementById('loadingScreen');
+                    screen.style.transition = 'opacity 0.5s';
+                    screen.style.opacity = '0';
+                    setTimeout(() => {
+                      screen.style.display = 'none';
+                      initApp();
+                    }, 500);
+                  }, 500);
                 }
               }, 50);
             })
