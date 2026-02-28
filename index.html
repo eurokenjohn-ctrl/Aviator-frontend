@@ -51,10 +51,13 @@
     .odd { background: #1f2937; padding: 5px 10px; border-radius: 15px; font-size: 12px; font-weight: bold; }
     
     /* Aviator Area */
-    .aviator-box { margin: 10px; border-radius: 10px; overflow: hidden; background: repeating-conic-gradient(from 0deg, #111 0deg 15deg, #1a1a1a 15deg 30deg); position: relative; height: 250px; display: flex; justify-content: center; align-items: center; flex-direction: column; }
-    .jackpot-banner { position: absolute; top: 0; left: 0; right: 0; background: linear-gradient(90deg, #b45309, #f59e0b); text-align: center; padding: 5px; font-weight: bold; font-size: 12px; }
+    .aviator-box { margin: 10px; border-radius: 10px; overflow: hidden; background: #000; position: relative; height: 250px; display: flex; justify-content: center; align-items: center; flex-direction: column; }
+    .aviator-box::before { content: ""; position: absolute; top: -100%; left: -100%; width: 300%; height: 300%; background: repeating-conic-gradient(from 0deg, #111 0deg 10deg, #1a1a1a 10deg 20deg); animation: spinBg 30s linear infinite; z-index: 1; pointer-events: none; }
+    @keyframes spinBg { 100% { transform: rotate(360deg); } }
+    .aviator-box > * { z-index: 2; }
+    .jackpot-banner { position: absolute; top: 0; left: 0; right: 0; background: linear-gradient(90deg, #b45309, #f59e0b); text-align: center; padding: 5px; font-weight: bold; font-size: 12px; z-index: 10; }
     .multiplier-display { font-size: 48px; font-weight: bold; color: white; z-index: 10; text-shadow: 0px 0px 10px rgba(0,0,0,0.8); }
-    .plane { position: absolute; top: 0; left: 0; width: 60px; height: 30px; margin-top:-15px; margin-left:-30px; z-index: 3; display: none; transition: transform 0.05s linear; }
+    .plane { position: absolute; top: 0; left: 0; width: 100px; height: 50px; margin-top:-25px; margin-left:-50px; z-index: 3; display: none; transition: transform 0.05s linear; }
     .flew-away-text { color: #ef4444; font-size: 24px; font-weight: bold; display: none; margin-top: 10px; }
     
     /* Toggle Tabs */
@@ -442,13 +445,17 @@
       </div>
     </div>
     <svg id="trailSvg" style="position:absolute; top:0; left:0; width:100%; height:100%; z-index:1; display:none;" preserveAspectRatio="none">
+      <path id="trailFill" d="" fill="url(#grad1)" stroke="none" />
       <path id="trailPath" d="" fill="none" stroke="#ef4444" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+      <defs>
+        <linearGradient id="grad1" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" style="stop-color:rgba(239, 68, 68, 0.5);stop-opacity:1" />
+          <stop offset="100%" style="stop-color:rgba(239, 68, 68, 0.0);stop-opacity:1" />
+        </linearGradient>
+      </defs>
     </svg>
-    <div class="plane" id="plane">
-      <!-- Modern Jet Icon -->
-      <svg width="60" height="30" viewBox="0 0 512 512" fill="#ef4444" style="filter: drop-shadow(0px 4px 6px rgba(239, 68, 68, 0.6));" xmlns="http://www.w3.org/2000/svg">
-        <path d="M498.4 121.2c-7.4-8.8-19.4-12.8-30.8-10.4L322.2 144.6l-149.6-96.8c-6.8-4.4-15.4-5.6-22.8-3.2-7.4 2.4-13.4 8.2-16 15.6l-32.8 91.2-64.8-14c-8.6-1.8-17.6 1.8-22.6 9-5 7.2-5 16.8 0 24l52 74-27.6 30.6c-5.8 6.4-7.4 15.8-4 23.8 3.4 8 11.2 13.2 19.8 13.2h28l46.2 60.4c5.8 7.6 14.8 12 24.4 12h32c10.4 0 19.8-5.6 25-14.8l46.6-83 176.4 38.2c1.2.2 2.4.4 3.6.4 10.4 0 20-5.4 25.2-14.4 5.4-9.4 5.2-20.8-.4-30L498.4 121.2z"/>
-      </svg>
+    <div class="plane" id="plane" style="mix-blend-mode: screen;">
+      <img src="plane.png" onerror="this.src='plane.jpg'" width="100" style="filter: drop-shadow(0px 4px 6px rgba(239, 68, 68, 0.6));" alt="Aviator">
     </div>
   </div>
 
@@ -1840,18 +1847,32 @@
         
         let maxMult = 10;
         let t = Math.min(1, Math.log(localMultiplier) / Math.log(maxMult)); 
-        let x = 20 + t * (w - 70);
-        let y = (h - 20) - Math.pow(t, 0.7) * (h - 70);
-        
-        let nextT = Math.min(1, Math.log(localMultiplier + 0.1) / Math.log(maxMult));
-        let nextX = 20 + nextT * (w - 70);
-        let nextY = (h - 20) - Math.pow(nextT, 0.7) * (h - 70);
-        let angle = Math.atan2(nextY - y, nextX - x) * 180 / Math.PI;
+        let x, y, nextX, nextY, angle;
+
+        if (localMultiplier <= maxMult) {
+            x = 20 + t * (w - 100);
+            y = (h - 20) - Math.pow(t, 1.5) * (h - 80);
+            
+            let nextT = Math.min(1, Math.log(localMultiplier + 0.1) / Math.log(maxMult));
+            nextX = 20 + nextT * (w - 100);
+            nextY = (h - 20) - Math.pow(nextT, 1.5) * (h - 80);
+            angle = Math.atan2(nextY - y, nextX - x) * 180 / Math.PI;
+            
+            pathD += ` L ${x} ${y}`;
+            if(document.getElementById('trailPath')) document.getElementById('trailPath').setAttribute('d', pathD);
+            if(document.getElementById('trailFill')) {
+                // To fill, we close the path at the bottom
+                let fillPath = pathD + ` L ${x} ${h} L 20 ${h} Z`;
+                document.getElementById('trailFill').setAttribute('d', fillPath);
+            }
+        } else {
+            let extraSec = elapsedSec - (Math.log(maxMult) / 0.08);
+            x = 20 + 1 * (w - 100);
+            y = (h - 20) - 1 * (h - 80) + Math.sin(extraSec * 4) * 8; // Bob up and down
+            angle = Math.cos(extraSec * 4) * 5; // Slight tilt while bobbing
+        }
 
         plane.style.transform = `translate(${x}px, ${y}px) rotate(${angle}deg)`;
-        
-        pathD += ` L ${x} ${y}`;
-        if(document.getElementById('trailPath')) document.getElementById('trailPath').setAttribute('d', pathD);
         
         if (betStatus === 'ACTIVE' && document.getElementById('autoSwitch').checked) {
            const autoVal = parseFloat(document.getElementById('autoCashoutVal').value);
@@ -1922,6 +1943,8 @@
                 }
              }
              pathD = '';
+             if(document.getElementById('trailPath')) document.getElementById('trailPath').setAttribute('d', '');
+             if(document.getElementById('trailFill')) document.getElementById('trailFill').setAttribute('d', '');
           }
           else if (data.status === 'RUNNING') {
              if (gameState !== 'RUNNING') {
@@ -1964,13 +1987,19 @@
              }
              if (gameState !== 'CRASHED') {
                 playSound('crash');
+                let currentTransform = plane.style.transform;
+                plane.style.transition = 'transform 0.3s ease-in';
+                plane.style.transform = currentTransform + ' translate(300px, -300px)';
+                setTimeout(() => {
+                    plane.style.display = 'none';
+                    plane.style.transition = ''; // revert to css default
+                }, 300);
              }
              gameState = 'CRASHED';
              currentMultiplier = data.multiplier;
              multDisplay.innerText = currentMultiplier.toFixed(2) + 'x';
              multDisplay.style.color = '#ef4444';
              flewAwayText.style.display = 'block';
-             plane.style.display = 'none';
              
              if (betStatus === 'ACTIVE' || betStatus === 'PROCESSING') {
                 betStatus = 'NONE';
