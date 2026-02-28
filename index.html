@@ -1845,6 +1845,11 @@
         
         // Pure exponential math for the visual curve
         let visualM = Math.exp(rate * t);
+
+        // Hovering effect (Up and Down oscillation)
+        // Only apply significant oscillation when the plane is further along
+        let hoverAmp = Math.min(5, t * 2); 
+        let hoverY = Math.sin(Date.now() / 200) * hoverAmp;
         
         // Text display sync
         let displayM = visualM;
@@ -1879,13 +1884,15 @@
         }
         
         let currentX = startX + speed * Math.pow(t, 1.05);
-        let currentY = startY - (visualM - 1) * verticalScale;
+        let currentY = startY - (visualM - 1) * verticalScale + hoverY;
         planePoints.push({x: currentX, y: currentY});
         
         // Calculate smooth derivative for stable angle without shaking
         let dx_dt = speed * 1.05 * Math.pow(Math.max(t, 0.001), 0.05);
         let dy_dt = -rate * verticalScale * Math.exp(rate * t);
-        let angle = Math.atan2(dy_dt, dx_dt) * 180 / Math.PI;
+        // Add a slight tilt to the angle based on the hover motion
+        let hoverAngle = Math.cos(Date.now() / 200) * (hoverAmp / 2);
+        let angle = (Math.atan2(dy_dt, dx_dt) * 180 / Math.PI) + hoverAngle;
         angle = Math.max(-45, Math.min(angle, 45));
 
         plane.style.transform = `translate(${currentX}px, ${currentY}px) rotate(${angle}deg)`;
