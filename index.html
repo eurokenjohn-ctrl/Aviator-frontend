@@ -1099,13 +1099,31 @@
       const text = document.getElementById('loadingText');
       
       const interval = setInterval(() => {
-        progress += 4;
-        bar.style.width = progress + '%';
-        if(progress === 60) text.innerText = 'Connecting to server...';
-        if(progress >= 100) {
+        if (progress < 60) {
+          progress += 4;
+          bar.style.width = progress + '%';
+        } else if (progress === 60) {
           clearInterval(interval);
-          document.getElementById('loadingScreen').style.display = 'none';
-          initApp();
+          text.innerText = 'Connecting to server...';
+          
+          // Ping the server to wake it up (solves Render cold start issue)
+          fetch(`${BACKEND_URL}/`)
+            .then(() => {
+              // Server is awake, complete the loading bar
+              const finishInterval = setInterval(() => {
+                progress += 5;
+                bar.style.width = progress + '%';
+                if(progress >= 100) {
+                  clearInterval(finishInterval);
+                  document.getElementById('loadingScreen').style.display = 'none';
+                  initApp();
+                }
+              }, 50);
+            })
+            .catch(err => {
+              console.error("Server connection error", err);
+              text.innerText = 'Server unavailable. Please refresh.';
+            });
         }
       }, 80);
     };
