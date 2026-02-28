@@ -3,7 +3,24 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Swiftcrash</title>
+  <title>Swiftcrash - Aviator Betting Game</title>
+  <meta name="description" content="Experience the thrill of Swiftcrash Aviator. Place your bets, watch the multiplier soar, and cash out before the plane flies away!">
+  <meta name="keywords" content="aviator, betting, crash game, swiftcrash, casino, multiplayer, gambling">
+  <link rel="icon" type="image/png" href="aviator.png">
+  
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://swiftcrash.com/">
+  <meta property="og:title" content="Swiftcrash - Aviator Betting Game">
+  <meta property="og:description" content="Join the most exciting crash game. High multipliers and instant cashouts.">
+  <meta property="og:image" content="aviator.png">
+
+  <!-- Twitter -->
+  <meta property="twitter:card" content="summary_large_image">
+  <meta property="twitter:url" content="https://swiftcrash.com/">
+  <meta property="twitter:title" content="Swiftcrash - Aviator Betting Game">
+  <meta property="twitter:description" content="Join the most exciting crash game. High multipliers and instant cashouts.">
+  <meta property="twitter:image" content="aviator.png">
   <style>
     body { background-color: #09090b; color: white; font-family: sans-serif; margin: 0; padding-bottom: 60px; }
     
@@ -373,10 +390,10 @@
   <div class="controls" style="padding: 10px; background: #111827; border-radius: 12px; margin: 10px; margin-top: 0;">
     <!-- Top row: Tabs & Auto settings toggle -->
     <div style="display:flex; justify-content:center; align-items:center; position:relative; margin-bottom: 10px; background:#1f2937; padding:4px; border-radius:20px; width:100%; max-width:250px; margin-left:auto; margin-right:auto;">
-      <div class="bet-tab active" id="tabManual" onclick="setBetMode('manual')" style="flex:1; text-align:center; padding:6px; font-size:14px; border-radius:16px; font-weight:bold; cursor:pointer;">Bet</div>
-      <div class="bet-tab" id="tabAuto" onclick="setBetMode('auto')" style="flex:1; text-align:center; padding:6px; font-size:14px; border-radius:16px; font-weight:bold; cursor:pointer;">Auto</div>
-      <div style="position:absolute; right: -40px; background:#1f2937; border-radius:8px; padding:6px; cursor:pointer; color:#22c55e;">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M8 12h8"/><path d="M12 8v8"/></svg>
+      <div class="bet-tab active" id="tabManual" onclick="setBetMode('manual', 0)" style="flex:1; text-align:center; padding:6px; font-size:14px; border-radius:16px; font-weight:bold; cursor:pointer;">Bet</div>
+      <div class="bet-tab" id="tabAuto" onclick="setBetMode('auto', 0)" style="flex:1; text-align:center; padding:6px; font-size:14px; border-radius:16px; font-weight:bold; cursor:pointer;">Auto</div>
+      <div id="toggleSecondBetBtn" style="position:absolute; right: -40px; background:#1f2937; border-radius:8px; padding:6px; cursor:pointer; color:#22c55e;" onclick="toggleSecondBet()">
+        <svg id="toggleSecondBetIcon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
       </div>
     </div>
 
@@ -406,15 +423,15 @@
       <!-- Left side: Amount & Presets -->
       <div style="flex:1; display:flex; flex-direction:column; gap:5px;">
         <div class="bet-amount" style="background:#1f2937; border-radius:8px; display:flex; align-items:center;">
-          <button class="bet-btn-adjust" onclick="adjustBet(-1)" style="padding:10px; background:transparent; font-size:20px; font-weight:normal; border:none; color:white; width:40px;">-</button>
-          <input type="number" class="bet-input" id="betAmount" value="5.00" min="1" max="100000" style="flex:1; width:100%; font-size:16px; font-weight:bold; text-align:center; background:transparent; border:none; color:white;" oninput="updateBetButtonAmount()">
-          <button class="bet-btn-adjust" onclick="adjustBet(1)" style="padding:10px; background:transparent; font-size:20px; font-weight:normal; border:none; color:white; width:40px;">+</button>
+          <button class="bet-btn-adjust" onclick="adjustBet(-1, 0)" style="padding:10px; background:transparent; font-size:20px; font-weight:normal; border:none; color:white; width:40px;">-</button>
+          <input type="number" class="bet-input" id="betAmount" value="5.00" min="1" max="100000" style="flex:1; width:100%; font-size:16px; font-weight:bold; text-align:center; background:transparent; border:none; color:white;" oninput="updateBetButtonAmount(0)">
+          <button class="bet-btn-adjust" onclick="adjustBet(1, 0)" style="padding:10px; background:transparent; font-size:20px; font-weight:normal; border:none; color:white; width:40px;">+</button>
         </div>
         <div class="bet-presets" style="display:grid; grid-template-columns:1fr 1fr; gap:5px;">
-          <button class="preset" onclick="setBet(100)" style="background:#1f2937; border:none; color:white; padding:8px 0; border-radius:4px; font-size:12px;">100</button>
-          <button class="preset" onclick="setBet(200)" style="background:#1f2937; border:none; color:white; padding:8px 0; border-radius:4px; font-size:12px;">200</button>
-          <button class="preset" onclick="setBet(500)" style="background:#1f2937; border:none; color:white; padding:8px 0; border-radius:4px; font-size:12px;">500</button>
-          <button class="preset" onclick="setBet(20000)" style="background:#1f2937; border:none; color:white; padding:8px 0; border-radius:4px; font-size:12px;">20,000</button>
+          <button class="preset" onclick="setBet(100, 0)" style="background:#1f2937; border:none; color:white; padding:8px 0; border-radius:4px; font-size:12px;">100</button>
+          <button class="preset" onclick="setBet(200, 0)" style="background:#1f2937; border:none; color:white; padding:8px 0; border-radius:4px; font-size:12px;">200</button>
+          <button class="preset" onclick="setBet(500, 0)" style="background:#1f2937; border:none; color:white; padding:8px 0; border-radius:4px; font-size:12px;">500</button>
+          <button class="preset" onclick="setBet(20000, 0)" style="background:#1f2937; border:none; color:white; padding:8px 0; border-radius:4px; font-size:12px;">20,000</button>
         </div>
       </div>
 
@@ -423,9 +440,68 @@
         <button class="btn-big-login" id="mainLoginBtn" onclick="openAuth('login')" style="flex:1; margin:0; display:none; flex-direction:column; justify-content:center; align-items:center; background:#3b82f6; color:white; border:none; border-radius:8px; font-size:20px; font-weight:bold; cursor:pointer;">
            LOGIN
         </button>
-        <button class="btn-big-bet" id="betBtn" onclick="handleBetClick()" style="flex:1; margin:0; display:flex; flex-direction:column; justify-content:center; align-items:center; background:#22c55e; color:white; border:none; border-radius:8px; cursor:pointer; min-height:80px;">
+        <button class="btn-big-bet" id="betBtn" onclick="handleBetClick(0)" style="flex:1; margin:0; display:flex; flex-direction:column; justify-content:center; align-items:center; background:#22c55e; color:white; border:none; border-radius:8px; cursor:pointer; min-height:80px;">
            <span style="font-size:22px; font-weight:normal;">Bet</span>
            <span id="betBtnAmount" style="font-size:16px; font-weight:normal;">5.00 KES</span>
+        </button>
+      </div>
+    </div>
+  </div>
+<!-- Controls -->
+  <div class="controls" id="controls2" style="display:none;" style="padding: 10px; background: #111827; border-radius: 12px; margin: 10px; margin-top: 0;">
+    <!-- Top row: Tabs & Auto settings toggle -->
+    <div style="display:flex; justify-content:center; align-items:center; position:relative; margin-bottom: 10px; background:#1f2937; padding:4px; border-radius:20px; width:100%; max-width:250px; margin-left:auto; margin-right:auto;">
+      <div class="bet-tab active" id="tabManual2" onclick="setBetMode('manual', 1)" style="flex:1; text-align:center; padding:6px; font-size:14px; border-radius:16px; font-weight:bold; cursor:pointer;">Bet</div>
+      <div class="bet-tab" id="tabAuto2" onclick="setBetMode('auto', 1)" style="flex:1; text-align:center; padding:6px; font-size:14px; border-radius:16px; font-weight:bold; cursor:pointer;">Auto</div>
+      
+    </div>
+
+    <!-- Auto Settings (Hidden by default, styled compactly) -->
+    <div id="autoSettingsGroup2" style="display:none; background:#1f2937; padding:10px; border-radius:8px; margin-bottom:10px; flex-direction:column; gap:10px;">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <span style="font-size:14px; font-weight:bold; color:white;">Auto Bet</span>
+        <label class="switch">
+          <input type="checkbox" id="autoBetSwitch2">
+          <span class="slider"></span>
+        </label>
+      </div>
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <span style="font-size:14px; font-weight:bold; color:white;">Auto Cashout</span>
+        <div style="display:flex; align-items:center; gap:10px;">
+          <label class="switch">
+            <input type="checkbox" id="autoSwitch2">
+            <span class="slider"></span>
+          </label>
+          <input type="number" class="auto-input" id="autoCashoutVal2" value="2.00" min="2.00" step="0.1" style="width:60px; text-align:right; background:#111827; border:1px solid #374151; color:white; padding:5px; border-radius:4px;">
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Grid -->
+    <div style="display:flex; gap:10px; height:100%;">
+      <!-- Left side: Amount & Presets -->
+      <div style="flex:1; display:flex; flex-direction:column; gap:5px;">
+        <div class="bet-amount" style="background:#1f2937; border-radius:8px; display:flex; align-items:center;">
+          <button class="bet-btn-adjust" onclick="adjustBet(-1, 1)" style="padding:10px; background:transparent; font-size:20px; font-weight:normal; border:none; color:white; width:40px;">-</button>
+          <input type="number" class="bet-input" id="betAmount2" value="5.00" min="1" max="100000" style="flex:1; width:100%; font-size:16px; font-weight:bold; text-align:center; background:transparent; border:none; color:white;" oninput="updateBetButtonAmount(1)">
+          <button class="bet-btn-adjust" onclick="adjustBet(1, 1)" style="padding:10px; background:transparent; font-size:20px; font-weight:normal; border:none; color:white; width:40px;">+</button>
+        </div>
+        <div class="bet-presets" style="display:grid; grid-template-columns:1fr 1fr; gap:5px;">
+          <button class="preset" onclick="setBet(100, 1)" style="background:#1f2937; border:none; color:white; padding:8px 0; border-radius:4px; font-size:12px;">100</button>
+          <button class="preset" onclick="setBet(200, 1)" style="background:#1f2937; border:none; color:white; padding:8px 0; border-radius:4px; font-size:12px;">200</button>
+          <button class="preset" onclick="setBet(500, 1)" style="background:#1f2937; border:none; color:white; padding:8px 0; border-radius:4px; font-size:12px;">500</button>
+          <button class="preset" onclick="setBet(20000, 1)" style="background:#1f2937; border:none; color:white; padding:8px 0; border-radius:4px; font-size:12px;">20,000</button>
+        </div>
+      </div>
+
+      <!-- Right side: Bet Button -->
+      <div style="flex:1; display:flex; flex-direction:column;">
+        <button class="btn-big-login" id="mainLoginBtn2" onclick="openAuth('login')" style="flex:1; margin:0; display:none; flex-direction:column; justify-content:center; align-items:center; background:#3b82f6; color:white; border:none; border-radius:8px; font-size:20px; font-weight:bold; cursor:pointer;">
+           LOGIN
+        </button>
+        <button class="btn-big-bet" id="betBtn2" onclick="handleBetClick(1)" style="flex:1; margin:0; display:flex; flex-direction:column; justify-content:center; align-items:center; background:#22c55e; color:white; border:none; border-radius:8px; cursor:pointer; min-height:80px;">
+           <span style="font-size:22px; font-weight:normal;">Bet</span>
+           <span id="betBtnAmount2" style="font-size:16px; font-weight:normal;">5.00 KES</span>
         </button>
       </div>
     </div>
@@ -1077,12 +1153,27 @@
     // STATE
     let currentUser = JSON.parse(localStorage.getItem('swiftcrash_user'));
     
+    
+    let secondBetVisible = false;
+    function toggleSecondBet() {
+      secondBetVisible = !secondBetVisible;
+      document.getElementById('controls2').style.display = secondBetVisible ? 'block' : 'none';
+      const icon = document.getElementById('toggleSecondBetIcon');
+      if (secondBetVisible) {
+        icon.innerHTML = '<line x1="5" y1="12" x2="19" y2="12"></line>';
+        icon.parentElement.style.color = '#ef4444';
+      } else {
+        icon.innerHTML = '<line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line>';
+        icon.parentElement.style.color = '#22c55e';
+      }
+    }
+
     // GAME STATE
     let gameState = 'WAITING'; // WAITING, RUNNING, CRASHED
     let currentMultiplier = 1.00;
-    let betStatus = 'NONE'; // NONE, PLACED, PLACED_WAITING, PROCESSING, ACTIVE, CASHOUT
-    let activeBetAmount = 0;
-    let currentBetId = null;
+    let bets = [{status:'NONE', amt:0, id:null}, {status:'NONE', amt:0, id:null}]; // NONE, PLACED, PLACED_WAITING, PROCESSING, ACTIVE, CASHOUT
+    
+    
     let gameInterval, progressInterval, balanceInterval;
 
     setInterval(() => {
@@ -1142,7 +1233,7 @@
       const headerLoginBtn = document.getElementById('headerLoginBtn');
       const headerBalance = document.getElementById('headerBalance');
       const mainLoginBtn = document.getElementById('mainLoginBtn');
-      const betBtn = document.getElementById('betBtn');
+      const betBtn = document.getElementById((idx===0 ? 'betBtn' : 'betBtn2'));
       const hamburgerMenuIcon = document.getElementById('hamburgerMenuIcon');
 
       if (currentUser) {
@@ -1550,7 +1641,7 @@
     const plane = document.getElementById('plane');
     const multDisplay = document.getElementById('multiplier');
     const flewAwayText = document.getElementById('flewAwayText');
-    const betBtn = document.getElementById('betBtn');
+    const betBtn = document.getElementById((idx===0 ? 'betBtn' : 'betBtn2'));
 
     function startGameLoop() {
       initGameSSE();
@@ -1589,10 +1680,10 @@
         pathD += ` L ${x} ${y}`;
         if(document.getElementById('trailPath')) document.getElementById('trailPath').setAttribute('d', pathD);
         
-        if (betStatus === 'ACTIVE' && document.getElementById('autoSwitch').checked) {
-           const autoVal = parseFloat(document.getElementById('autoCashoutVal').value);
+        if (bets[idx].status === 'ACTIVE' && document.getElementById((idx===0 ? 'autoSwitch' : 'autoSwitch2')).checked) {
+           const autoVal = parseFloat(document.getElementById((idx===0 ? 'autoCashoutVal' : 'autoCashoutVal2')).value);
            if (localMultiplier >= autoVal) {
-             betStatus = 'CASHOUT';
+             bets[idx].status = 'CASHOUT';
              updateBetBtn('WAITING_CASHOUT');
              playSound('cashout');
              showNotification(`Auto Cashed out ${autoVal.toFixed(2)}x!`, 'success');
@@ -1633,8 +1724,8 @@
              const progressFill = document.getElementById('nextRoundFill');
              if(countdownContainer) countdownContainer.style.display = 'block';
              
-             if(betStatus === 'PLACED' || betStatus === 'PLACED_WAITING') {
-                 betStatus = 'PLACED';
+             if(bets[idx].status === 'PLACED' || bets[idx].status === 'PLACED_WAITING') {
+                 bets[idx].status = 'PLACED';
                  updateBetBtn('CANCEL');
              } else {
                  updateBetBtn('BET');
@@ -1648,10 +1739,10 @@
                 }
              }
 
-             if (data.time === 5 && betStatus === 'NONE') {
-                const autoBetEnabled = document.getElementById('autoBetSwitch') && document.getElementById('autoBetSwitch').checked;
+             if (data.time === 5 && bets[idx].status === 'NONE') {
+                const autoBetEnabled = document.getElementById((idx===0 ? 'autoBetSwitch' : 'autoBetSwitch2')) && document.getElementById((idx===0 ? 'autoBetSwitch' : 'autoBetSwitch2')).checked;
                 if(autoBetEnabled && currentUser) {
-                   const amount = document.getElementById('betAmount').value;
+                   const amount = document.getElementById((idx===0 ? 'betAmount' : 'betAmount2')).value;
                    if(currentUser.balance >= parseFloat(amount)) {
                       handleBetClick(); // Places bet automatically
                    }
@@ -1678,11 +1769,11 @@
                 const countdownContainer = document.getElementById('countdownDisplay');
                 if(countdownContainer) countdownContainer.style.display = 'none';
                 
-                if (betStatus === 'PLACED') {
-                   betStatus = 'ACTIVE';
+                if (bets[idx].status === 'PLACED') {
+                   bets[idx].status = 'ACTIVE';
                    updateBetBtn('CASHOUT');
                    refreshBalanceSilently(); // Fetch deducted balance
-                } else if (betStatus === 'NONE' || betStatus === 'CASHOUT') {
+                } else if (bets[idx].status === 'NONE' || bets[idx].status === 'CASHOUT') {
                    updateBetBtnDisabled(true);
                 }
                 
@@ -1691,7 +1782,7 @@
              }
              
              currentMultiplier = data.multiplier; // Sync from server
-             if (betStatus === 'ACTIVE') updateBetBtn('CASHOUT'); // update cashout amount display
+             for(let idx=0; idx<2; idx++) { if (bets[idx].status === 'ACTIVE') updateBetBtn('CASHOUT', idx); } // update cashout amount display
           }
           else if (data.status === 'CRASHED') {
              if (animationFrameId) {
@@ -1708,15 +1799,15 @@
              flewAwayText.style.display = 'block';
              plane.style.display = 'none';
              
-             if (betStatus === 'ACTIVE' || betStatus === 'PROCESSING') {
-                betStatus = 'NONE';
-                currentBetId = null;
-             } else if (betStatus === 'CASHOUT') {
-                betStatus = 'NONE';
-                currentBetId = null;
+             if (bets[idx].status === 'ACTIVE' || bets[idx].status === 'PROCESSING') {
+                bets[idx].status = 'NONE';
+                bets[idx].id = null;
+             } else if (bets[idx].status === 'CASHOUT') {
+                bets[idx].status = 'NONE';
+                bets[idx].id = null;
              }
              
-             if (betStatus === 'PLACED_WAITING') {
+             if (bets[idx].status === 'PLACED_WAITING') {
                 updateBetBtn('CANCEL_WAITING');
              } else {
                 updateBetBtn('BET');
@@ -1728,15 +1819,15 @@
     async function placeServerBet(amount) {
       if (!currentUser || currentUser.balance < amount) {
          showNotification('Insufficient balance', 'error');
-         betStatus = 'NONE';
+         bets[idx].status = 'NONE';
          updateBetBtn('BET');
          return;
       }
-      betStatus = 'PROCESSING';
+      bets[idx].status = 'PROCESSING';
       updateBetBtn('PROCESSING_BET');
       
-      const isAuto = document.getElementById('autoSwitch') && document.getElementById('autoSwitch').checked;
-      const autoVal = isAuto ? parseFloat(document.getElementById('autoCashoutVal').value) : null;
+      const isAuto = document.getElementById((idx===0 ? 'autoSwitch' : 'autoSwitch2')) && document.getElementById((idx===0 ? 'autoSwitch' : 'autoSwitch2')).checked;
+      const autoVal = isAuto ? parseFloat(document.getElementById((idx===0 ? 'autoCashoutVal' : 'autoCashoutVal2')).value) : null;
       
       try {
          const res = await fetch(`${BACKEND_URL}/bet`, {
@@ -1748,95 +1839,95 @@
          if (data.success) {
             playSound('bet');
             currentUser.balance = data.balance;
-            currentBetId = data.betId;
+            bets[idx].id = data.betId;
             localStorage.setItem('swiftcrash_user', JSON.stringify(currentUser));
             updateUIForAuth();
             if (gameState === 'WAITING') {
-               betStatus = 'PLACED';
+               bets[idx].status = 'PLACED';
                updateBetBtn('CANCEL');
             } else {
-               betStatus = 'PLACED_WAITING';
+               bets[idx].status = 'PLACED_WAITING';
                updateBetBtn('CANCEL_WAITING');
             }
          } else {
             showNotification("Bet failed: " + data.error, "error");
-            betStatus = 'NONE';
+            bets[idx].status = 'NONE';
             updateBetBtn('BET');
          }
       } catch (e) {
          showNotification("Network error. Try again.", "error");
-         betStatus = 'NONE';
+         bets[idx].status = 'NONE';
          updateBetBtn('BET');
       }
     }
 
-    async function cancelServerBet() {
-      if (!currentBetId) return;
-      betStatus = 'PROCESSING';
+    async function cancelServerBet(idx=0) {
+      if (!bets[idx].id) return;
+      bets[idx].status = 'PROCESSING';
       updateBetBtn('PROCESSING_CANCEL');
       try {
          const res = await fetch(`${BACKEND_URL}/cancel_bet`, {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({phone: currentUser.phone, betId: currentBetId})
+            body: JSON.stringify({phone: currentUser.phone, betId: bets[idx].id})
          });
          const data = await res.json();
          if (data.success) {
             currentUser.balance = data.balance;
-            currentBetId = null;
+            bets[idx].id = null;
             localStorage.setItem('swiftcrash_user', JSON.stringify(currentUser));
             updateUIForAuth();
-            betStatus = 'NONE';
+            bets[idx].status = 'NONE';
             updateBetBtn('BET');
          } else {
             showNotification("Cancel failed: " + data.error, "error");
-            betStatus = 'PLACED';
+            bets[idx].status = 'PLACED';
             updateBetBtn('CANCEL');
          }
       } catch (e) {
          showNotification("Network error. Try again.", "error");
-         betStatus = 'PLACED';
+         bets[idx].status = 'PLACED';
          updateBetBtn('CANCEL');
       }
     }
 
-    function handleBetClick() {
+    function handleBetClick(idx=0) {
       if (!currentUser) { openAuth('login'); return; }
       
-      const amt = parseFloat(document.getElementById('betAmount').value);
+      const amt = parseFloat(document.getElementById((idx===0 ? 'betAmount' : 'betAmount2')).value);
 
       if (gameState === 'WAITING') {
-        if (betStatus === 'NONE') {
+        if (bets[idx].status === 'NONE') {
           if(amt < 1) { alert('Min bet is 1'); return; }
-          activeBetAmount = amt;
+          bets[idx].amt = amt;
           placeServerBet(amt);
-        } else if (betStatus === 'PLACED') {
+        } else if (bets[idx].status === 'PLACED') {
           cancelServerBet();
-        } else if (betStatus === 'PLACED_WAITING') {
+        } else if (bets[idx].status === 'PLACED_WAITING') {
           cancelServerBet();
         }
       } else if (gameState === 'RUNNING' || gameState === 'CRASHED') {
-        if (betStatus === 'NONE') {
+        if (bets[idx].status === 'NONE') {
           if(amt < 1) { alert('Min bet is 1'); return; }
-          activeBetAmount = amt;
+          bets[idx].amt = amt;
           // Place bet for next round immediately
           placeServerBet(amt);
-        } else if (betStatus === 'PLACED_WAITING') {
+        } else if (bets[idx].status === 'PLACED_WAITING') {
           // Cancel the pending bet
           cancelServerBet();
-        } else if (betStatus === 'ACTIVE') {
+        } else if (bets[idx].status === 'ACTIVE') {
           performCashout();
         }
       }
     }
 
-    async function performCashout() {
-      if (betStatus !== 'ACTIVE') return;
-      const winAmount = activeBetAmount * currentMultiplier;
+    async function performCashout(idx=0) {
+      if (bets[idx].status !== 'ACTIVE') return;
+      const winAmount = bets[idx].amt * currentMultiplier;
       const cashoutMult = currentMultiplier;
-      const betIdToCashout = currentBetId;
-      betStatus = 'CASHOUT';
-      currentBetId = null;
+      const betIdToCashout = bets[idx].id;
+      bets[idx].status = 'CASHOUT';
+      bets[idx].id = null;
       playSound('cashout');
       updateBetBtn('WAITING_CASHOUT'); 
       showNotification(`Cashed out ${cashoutMult.toFixed(2)}x ! Won KSH ${winAmount.toFixed(2)}`, 'success');
@@ -1858,8 +1949,8 @@
       }
     }
 
-    function updateBetBtn(type) {
-      betBtn.className = 'btn-big-bet';
+    function updateBetBtn(type, idx=0) {
+      const betBtn = document.getElementById(idx===0 ? 'betBtn' : 'betBtn2'); betBtn.className = 'btn-big-bet';
       betBtn.disabled = false;
       betBtn.style.opacity = '1';
       betBtn.style.cursor = 'pointer';
@@ -1877,7 +1968,7 @@
         betBtn.style.background = '#ef4444';
         betBtn.style.color = 'white';
       } else if (type === 'CASHOUT') {
-        betBtn.innerText = `CASHOUT ${(activeBetAmount * currentMultiplier).toFixed(2)}`;
+        betBtn.innerText = `CASHOUT ${(bets[idx].amt * currentMultiplier).toFixed(2)}`;
         betBtn.style.background = '#eab308';
         betBtn.style.color = '#000';
       } else if (type === 'PROCESSING_BET') {
@@ -1916,10 +2007,10 @@
        }
     }
 
-    function setBetMode(mode) {
-      const tabManual = document.getElementById('tabManual');
-      const tabAuto = document.getElementById('tabAuto');
-      const autoSettings = document.getElementById('autoSettingsGroup');
+    function setBetMode(mode, idx=0) {
+      const tabManual = document.getElementById((idx===0 ? 'tabManual' : 'tabManual2'));
+      const tabAuto = document.getElementById((idx===0 ? 'tabAuto' : 'tabAuto2'));
+      const autoSettings = document.getElementById((idx===0 ? 'autoSettingsGroup' : 'autoSettingsGroup2'));
       
       if(mode === 'manual') {
         tabManual.classList.add('active');
@@ -1932,14 +2023,14 @@
       }
     }
 
-    function updateBetButtonAmount() {
-      const val = parseFloat(document.getElementById('betAmount').value) || 0;
-      const btnAmt = document.getElementById('betBtnAmount');
+    function updateBetButtonAmount(idx=0) {
+      const val = parseFloat(document.getElementById((idx===0 ? 'betAmount' : 'betAmount2')).value) || 0;
+      const btnAmt = document.getElementById((idx===0 ? 'betBtnAmount' : 'betBtnAmount2'));
       if (btnAmt) btnAmt.innerText = val.toFixed(2) + ' KES';
     }
 
-    function adjustBet(val) {
-      let input = document.getElementById('betAmount');
+    function adjustBet(val, idx=0) {
+      let input = document.getElementById((idx===0 ? 'betAmount' : 'betAmount2'));
       let currentVal = parseFloat(input.value);
       if (isNaN(currentVal)) currentVal = 0;
       
@@ -1950,8 +2041,8 @@
       input.value = newVal.toFixed(2);
       updateBetButtonAmount();
     }
-    function setBet(val) { 
-      document.getElementById('betAmount').value = parseFloat(val).toFixed(2);
+    function setBet(val, idx=0) { 
+      document.getElementById((idx===0 ? 'betAmount' : 'betAmount2')).value = parseFloat(val).toFixed(2);
       updateBetButtonAmount();
     }
 
