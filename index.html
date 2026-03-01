@@ -137,6 +137,7 @@
     @keyframes spin { 100% { transform: rotate(360deg); } }
     @keyframes pulse { 0% { transform: scale(1); box-shadow: 0 0 10px rgba(239, 68, 68, 0.4); } 50% { transform: scale(1.05); box-shadow: 0 0 20px rgba(239, 68, 68, 0.8); } 100% { transform: scale(1); box-shadow: 0 0 10px rgba(239, 68, 68, 0.4); } }
     @keyframes glow { 0%, 100% { text-shadow: 0 0 5px rgba(239, 68, 68, 0.5), 0 0 10px rgba(239, 68, 68, 0.3); } 50% { text-shadow: 0 0 15px rgba(239, 68, 68, 0.9), 0 0 25px rgba(239, 68, 68, 0.6); } }
+    @keyframes glow-blink { 0%, 100% { opacity: 1; filter: drop-shadow(0 0 2px rgba(239, 68, 68, 0.5)); } 50% { opacity: 0.5; filter: drop-shadow(0 0 8px rgba(239, 68, 68, 0.9)); } }
     @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
     .animate-logo { animation: glow 2s ease-in-out infinite, float 3s ease-in-out infinite; display: inline-flex; align-items: center; }
     .loading-glow { position: relative; }
@@ -189,7 +190,7 @@
 
     /* Notification Bell */
     .notification-bell { position: relative; cursor: pointer; display: none; }
-    .notification-badge { position: absolute; top: -5px; right: -5px; background: #ef4444; color: white; border-radius: 50%; width: 18px; height: 18px; font-size: 10px; font-weight: bold; display: flex; align-items: center; justify-content: center; }
+    .notification-badge { position: absolute; top: -5px; right: -5px; background: #ef4444; color: white; border-radius: 50%; min-width: 18px; padding: 0 4px; height: 18px; font-size: 10px; font-weight: bold; display: flex; align-items: center; justify-content: center; }
     .notification-item { background: #1f2937; padding: 10px; border-radius: 5px; margin-bottom: 8px; font-size: 13px; border-left: 3px solid #3b82f6; }
     .notification-item.unread { background: #1e293b; border-left-color: #ef4444; }
     .notification-time { font-size: 10px; color: #9ca3af; margin-top: 5px; }
@@ -263,8 +264,9 @@
         <span id="balanceText">KSH 0.00</span>
         <svg id="refreshIcon" onclick="manualRefresh()" style="cursor:pointer; transition: transform 0.5s;" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 21v-5h5"/></svg>
       </div>
-      <div id="hamburgerMenuIcon" style="display:none; cursor:pointer; margin-left:10px; padding: 5px; border-radius: 50%; transition: background 0.3s;" onclick="toggleHamburger(event)">
+      <div id="hamburgerMenuIcon" style="display:none; cursor:pointer; margin-left:10px; padding: 5px; border-radius: 50%; transition: background 0.3s; position: relative;" onclick="toggleHamburger(event)">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg>
+        <div id="hamburgerBadge" style="display:none; position:absolute; top:-2px; right:-2px; background:#ef4444; color:white; font-size:10px; font-weight:bold; border-radius:10px; padding:0 4px; height:16px; align-items:center; justify-content:center; pointer-events:none;"></div>
       </div>
     </div>
   </div>
@@ -669,7 +671,7 @@
       Bets
     </a>
     <a href="Wallet.html">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 2px;"><path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a8 8 0 0 1-5 7.96V16a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v5.96A8 8 0 0 1 2 15V7"/><path d="M22 10.5v1.07a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2V10.5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2Z"/></svg>
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="none" style="margin-bottom: 2px;"><path d="M21 7H3V4c0-1.1.9-2 2-2h14c1.1 0 2 .9 2 2v3zm0 2H3v11c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V9zm-5 7a2 2 0 1 1 0-4 2 2 0 0 1 0 4z"/></svg>
       Wallet
     </a>
     <div style="position:relative; display:flex; flex-direction:column; align-items:center; justify-content:center;">
@@ -1640,7 +1642,7 @@
       const btn = document.getElementById('submitWithdrawBtn');
 
       if (amount < 100) { errorEl.innerText = "Min withdrawal is KSH 100"; errorEl.style.display = 'block'; return; }
-      if (parseFloat(amount) > parseFloat(currentUser.balance)) { errorEl.innerText = "Insufficient balance"; errorEl.style.display = 'block'; return; }
+      if (parseFloat(amount) > parseFloat(currentUser.balance)) { errorEl.innerText = "Your account balance is too low, kindly make a deposit"; errorEl.style.display = 'block'; return; }
 
       errorEl.style.display = 'none';
       spinner.style.display = 'block';
@@ -2013,6 +2015,9 @@
                    const amount = document.getElementById('betAmount').value;
                    if(currentUser.balance >= parseFloat(amount)) {
                       handleBetClick(); // Places bet automatically
+                   } else {
+                      document.getElementById('autoBetSwitch').checked = false;
+                      showNotification("Your account balance is too low, kindly make a deposit", "error");
                    }
                 }
              }
@@ -2112,7 +2117,7 @@
 
     async function placeServerBet(amount) {
       if (!currentUser || currentUser.balance < amount) {
-         showNotification('Insufficient balance', 'error');
+         showNotification("Your account balance is too low, kindly make a deposit", "error");
          betStatus = 'NONE';
          updateBetBtn('BET');
          return;
@@ -2573,11 +2578,23 @@
          if(data.success) {
             const unreadCount = data.notifications.filter(n => !n.is_read).length;
             const badge = document.getElementById('notificationBadge');
+            const hamburgerBadge = document.getElementById('hamburgerBadge');
             if(unreadCount > 0) {
-               badge.innerText = unreadCount > 9 ? '9+' : unreadCount;
+               badge.innerText = unreadCount > 9 ? '9+new' : unreadCount + 'new';
                badge.style.display = 'flex';
+               
+               if (hamburgerBadge) {
+                   hamburgerBadge.innerText = unreadCount > 9 ? '9+' : unreadCount;
+                   hamburgerBadge.style.display = 'flex';
+                   hamburgerBadge.style.animation = 'glow-blink 1.5s infinite';
+               }
             } else {
                badge.style.display = 'none';
+               
+               if (hamburgerBadge) {
+                   hamburgerBadge.style.display = 'none';
+                   hamburgerBadge.style.animation = 'none';
+               }
             }
             return data.notifications;
          }
