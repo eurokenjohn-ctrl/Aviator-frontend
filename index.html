@@ -7,7 +7,7 @@
   <meta name="keywords" content="Swiftcrash, crash game, aviator, betting, online game, earn money, referral">
   <meta name="author" content="Swiftcrash">
   <meta name="robots" content="index, follow">
-  <meta name="theme-color" content="#f97316">
+  <meta name="theme-color" content="#ef4444">
   
   <!-- Open Graph / Facebook -->
   <meta property="og:type" content="website">
@@ -24,24 +24,24 @@
   <meta property="twitter:image" content="aviator.png">
 
   <!-- Favicon -->
-  <link rel="icon" type="image/png" href="aviator1.png">
-  <link rel="apple-touch-icon" href="aviator1.png">
+  <link rel="icon" type="image/png" href="aviator.png">
+  <link rel="apple-touch-icon" href="aviator.png">
   <title>Swiftcrash</title>
   <style>
     body { background-color: #09090b; color: white; font-family: sans-serif; margin: 0; padding-bottom: 60px; }
     
     /* Top Bar */
-    .top-bar { background-color: #f97316; padding: 10px; display: flex; justify-content: space-between; align-items: center; font-size: 14px; font-weight: bold; }
-    .btn-share { background-color: white; color: #f97316; padding: 5px 10px; border-radius: 4px; text-decoration: none; font-size: 12px; cursor: pointer; }
+    .top-bar { background-color: #ef4444; padding: 10px; display: flex; justify-content: space-between; align-items: center; font-size: 14px; font-weight: bold; }
+    .btn-share { background-color: white; color: #ef4444; padding: 5px 10px; border-radius: 4px; text-decoration: none; font-size: 12px; cursor: pointer; }
     
     /* Header */
-    .header { padding: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #1f2937; background: #111827; position: relative; box-shadow: 0 4px 20px rgba(245, 158, 11, 0.15); }
-    .logo { color: #f59e0b; font-size: 20px; font-weight: 900; display: flex; align-items: center; gap: 5px; filter: drop-shadow(0 0 5px rgba(245, 158, 11, 0.3)); }
+    .header { padding: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #1f2937; background: #111827; position: relative; box-shadow: 0 4px 20px rgba(239, 68, 68, 0.15); }
+    .logo { color: #ef4444; font-size: 20px; font-weight: 900; display: flex; align-items: center; gap: 5px; filter: drop-shadow(0 0 5px rgba(239, 68, 68, 0.3)); }
     .header-actions { display: flex; gap: 10px; align-items: center; }
     .btn-deposit { background-color: #22c55e; color: white; padding: 8px 15px; border-radius: 6px; font-weight: bold; border: none; cursor: pointer; display: none; transition: 0.3s; box-shadow: 0 0 10px rgba(34, 197, 94, 0.2); }
     .btn-deposit:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(34, 197, 94, 0.4); }
-    .btn-withdraw { background-color: #f59e0b; color: white; padding: 8px 15px; border-radius: 6px; font-weight: bold; border: none; cursor: pointer; display: none; margin-top: 5px; transition: 0.3s; box-shadow: 0 0 10px rgba(245, 158, 11, 0.2); }
-    .btn-withdraw:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4); }
+    .btn-withdraw { background-color: #ef4444; color: white; padding: 8px 15px; border-radius: 6px; font-weight: bold; border: none; cursor: pointer; display: none; margin-top: 5px; transition: 0.3s; box-shadow: 0 0 10px rgba(239, 68, 68, 0.2); }
+    .btn-withdraw:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4); }
     .btn-login-header { background-color: #3b82f6; color: white; padding: 8px 15px; border-radius: 6px; font-weight: bold; border: none; cursor: pointer; box-shadow: 0 0 15px rgba(59, 130, 246, 0.3); }
     .balance { font-weight: bold; font-size: 14px; color: #22c55e; display: none; text-shadow: 0 0 8px rgba(34, 197, 94, 0.3); }
     .profile-icon { background: #374151; padding: 5px 10px; border-radius: 50%; cursor: pointer; display: none; }
@@ -52,10 +52,28 @@
     
     /* Aviator Area */
     .aviator-box { margin: 10px; border-radius: 10px; overflow: hidden; background: #000; position: relative; height: 250px; display: flex; justify-content: center; align-items: center; flex-direction: column; }
-    .aviator-box::before { content: ""; position: absolute; top: -150%; left: -150%; width: 400%; height: 400%; background: repeating-conic-gradient(from 0deg, #111 0deg 15deg, #1a1a1a 15deg 30deg); z-index: 0; animation: spinBg 60s linear infinite; animation-play-state: paused; }
-    .aviator-box.running::before { animation-play-state: running; }
-    @keyframes spinBg { 100% { transform: rotate(360deg); } }
-    .jackpot-banner { position: absolute; top: 0; left: 0; right: 0; background: linear-gradient(90deg, #b45309, #f59e0b); text-align: center; padding: 5px; font-weight: bold; font-size: 12px; z-index: 10; }
+    .aviator-box::before { 
+      content: ""; 
+      position: absolute; 
+      bottom: -50px; 
+      left: -50px; 
+      width: 400%; 
+      height: 400%; 
+      background: repeating-conic-gradient(from 0deg at 50px calc(100% - 50px), #171b26 0deg 3deg, #0b0e14 3deg 6deg); 
+      transform-origin: 50px calc(100% - 50px);
+      z-index: 0; 
+      animation: spinBg 20s linear infinite; 
+      animation-play-state: paused; 
+    }
+    .aviator-box.running::before {
+      animation-play-state: running;
+    }
+    @keyframes spinBg { 
+      0% { transform: rotate(0deg); }
+      50% { transform: rotate(45deg); }
+      100% { transform: rotate(0deg); }
+    }
+    .jackpot-banner { position: absolute; top: 0; left: 0; right: 0; background: linear-gradient(90deg, #991b1b, #ef4444); text-align: center; padding: 5px; font-weight: bold; font-size: 12px; z-index: 10; }
     .multiplier-display { font-size: 48px; font-weight: bold; color: white; z-index: 10; text-shadow: 0px 0px 10px rgba(0,0,0,0.8); }
     .plane { position: absolute; top: 0; left: 0; width: 60px; height: 30px; margin-top:-15px; margin-left:-30px; z-index: 3; display: none; }
     .flew-away-text { color: #ef4444; font-size: 24px; font-weight: bold; display: none; margin-top: 10px; z-index: 10; }
@@ -115,14 +133,14 @@
     .error-msg { color: #ef4444; font-size: 12px; margin-top: 5px; display: none; }
     .success-msg { color: #22c55e; font-size: 14px; text-align: center; margin-top: 10px; display: none; }
     
-    .spinner { display: none; margin: 10px auto; border: 4px solid rgba(255,255,255,0.1); border-left-color: #f97316; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; }
+    .spinner { display: none; margin: 10px auto; border: 4px solid rgba(255,255,255,0.1); border-left-color: #ef4444; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; }
     @keyframes spin { 100% { transform: rotate(360deg); } }
-    @keyframes pulse { 0% { transform: scale(1); box-shadow: 0 0 10px rgba(245, 158, 11, 0.4); } 50% { transform: scale(1.05); box-shadow: 0 0 20px rgba(245, 158, 11, 0.8); } 100% { transform: scale(1); box-shadow: 0 0 10px rgba(245, 158, 11, 0.4); } }
-    @keyframes glow { 0%, 100% { text-shadow: 0 0 5px rgba(245, 158, 11, 0.5), 0 0 10px rgba(245, 158, 11, 0.3); } 50% { text-shadow: 0 0 15px rgba(245, 158, 11, 0.9), 0 0 25px rgba(245, 158, 11, 0.6); } }
+    @keyframes pulse { 0% { transform: scale(1); box-shadow: 0 0 10px rgba(239, 68, 68, 0.4); } 50% { transform: scale(1.05); box-shadow: 0 0 20px rgba(239, 68, 68, 0.8); } 100% { transform: scale(1); box-shadow: 0 0 10px rgba(239, 68, 68, 0.4); } }
+    @keyframes glow { 0%, 100% { text-shadow: 0 0 5px rgba(239, 68, 68, 0.5), 0 0 10px rgba(239, 68, 68, 0.3); } 50% { text-shadow: 0 0 15px rgba(239, 68, 68, 0.9), 0 0 25px rgba(239, 68, 68, 0.6); } }
     @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
     .animate-logo { animation: glow 2s ease-in-out infinite, float 3s ease-in-out infinite; display: inline-flex; align-items: center; }
     .loading-glow { position: relative; }
-    .loading-glow::after { content: ''; position: absolute; inset: -20px; background: radial-gradient(circle, rgba(245, 158, 11, 0.15) 0%, transparent 70%); z-index: -1; animation: pulse 3s infinite; }
+    .loading-glow::after { content: ''; position: absolute; inset: -20px; background: radial-gradient(circle, rgba(239, 68, 68, 0.15) 0%, transparent 70%); z-index: -1; animation: pulse 3s infinite; }
     
     /* Advanced Spinner */
     .advanced-spinner {
@@ -137,7 +155,7 @@
       width: 50px;
       height: 50px;
       border-radius: 50%;
-      border: 3px solid #f59e0b;
+      border: 3px solid #ef4444;
       position: absolute;
       left: 0;
       top: 0;
@@ -173,7 +191,7 @@
     .notification-bell { position: relative; cursor: pointer; display: none; }
     .notification-badge { position: absolute; top: -5px; right: -5px; background: #ef4444; color: white; border-radius: 50%; width: 18px; height: 18px; font-size: 10px; font-weight: bold; display: flex; align-items: center; justify-content: center; }
     .notification-item { background: #1f2937; padding: 10px; border-radius: 5px; margin-bottom: 8px; font-size: 13px; border-left: 3px solid #3b82f6; }
-    .notification-item.unread { background: #1e293b; border-left-color: #f59e0b; }
+    .notification-item.unread { background: #1e293b; border-left-color: #ef4444; }
     .notification-time { font-size: 10px; color: #9ca3af; margin-top: 5px; }
 
     /* Custom Toast Notifications */
@@ -194,7 +212,7 @@
   <div id="loadingScreen" style="position: fixed; inset: 0; background: #000; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center;">
     <div class="loading-glow">
       <h1 class="logo animate-logo" style="font-size: 36px; margin-bottom: 30px;">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="48" height="48" style="margin-right: 12px; filter: drop-shadow(0 0 8px rgba(245, 158, 11, 0.6));">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="48" height="48" style="margin-right: 12px; filter: drop-shadow(0 0 8px rgba(239, 68, 68, 0.6));">
           <path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-.5-.5-2.5 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.2-1.1.6L3 8l6.2 3.8L6.5 14 3.8 13c-.4-.1-.8.2-1 .5L2 14.5l4.5 3 3 4.5 1-1c.3-.2.6-.6.5-1L10 17.5l2.2-2.7 8.2 6.2c.4.3.8-.1.7-.5l-1.2-4.3z"/>
         </svg>
         Swiftcrash
@@ -206,7 +224,7 @@
     </div>
 
     <div id="progressContainer" style="width: 220px; height: 6px; background: #1f2937; border-radius: 10px; overflow: hidden; box-shadow: inset 0 1px 3px rgba(0,0,0,0.5);">
-      <div id="progressBar" style="width: 0%; height: 100%; background: linear-gradient(90deg, #f59e0b, #fbbf24); transition: width 0.1s; box-shadow: 0 0 10px rgba(245, 158, 11, 0.5);"></div>
+      <div id="progressBar" style="width: 0%; height: 100%; background: linear-gradient(90deg, #ef4444, #fca5a5); transition: width 0.1s; box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);"></div>
     </div>
     <p id="loadingText" style="margin-top: 15px; color: #9ca3af; font-size: 14px; font-weight: 500; letter-spacing: 0.5px;">Initializing game engine...</p>
   </div>
@@ -231,14 +249,14 @@
       <a href="#" class="social-btn" id="twShare" style="background:#1DA1F2;" target="_blank">Twitter</a>
     </div>
     <div id="referredByContainer" style="margin-top: 15px; font-size: 14px; display: none;">
-      REFERRED BY: <span id="referredByUsername" style="color: #f59e0b; font-weight: bold;"></span>
+      REFERRED BY: <span id="referredByUsername" style="color: #ef4444; font-weight: bold;"></span>
     </div>
-    <button style="width: 100%; margin-top: 15px; padding: 12px; background: linear-gradient(135deg, #f59e0b, #f97316); color: white; border: none; border-radius: 8px; font-weight: 900; font-size: 16px; cursor: pointer; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4); text-transform: uppercase; animation: pulse 2s infinite;" onclick="openReferralHistory()">REFERRAL HISTORY</button>
+    <button style="width: 100%; margin-top: 15px; padding: 12px; background: linear-gradient(135deg, #ef4444, #dc2626); color: white; border: none; border-radius: 8px; font-weight: 900; font-size: 16px; cursor: pointer; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4); text-transform: uppercase; animation: pulse 2s infinite;" onclick="openReferralHistory()">REFERRAL HISTORY</button>
   </div>
 
   <!-- Header -->
   <div class="header">
-    <div class="logo"><span style="color:#facc15"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="24" height="24"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-.5-.5-2.5 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.2-1.1.6L3 8l6.2 3.8L6.5 14 3.8 13c-.4-.1-.8.2-1 .5L2 14.5l4.5 3 3 4.5 1-1c.3-.2.6-.6.5-1L10 17.5l2.2-2.7 8.2 6.2c.4.3.8-.1.7-.5l-1.2-4.3z"/></svg></span> Swiftcrash</div>
+    <div class="logo"><span style="color:#ef4444"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="24" height="24"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-.5-.5-2.5 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.2-1.1.6L3 8l6.2 3.8L6.5 14 3.8 13c-.4-.1-.8.2-1 .5L2 14.5l4.5 3 3 4.5 1-1c.3-.2.6-.6.5-1L10 17.5l2.2-2.7 8.2 6.2c.4.3.8-.1.7-.5l-1.2-4.3z"/></svg></span> Swiftcrash</div>
     <div class="header-actions">
       <button class="btn-login-header" id="headerLoginBtn" onclick="openAuth('login')">Login</button>
       <div class="balance" id="headerBalance" style="display:none; align-items:center; gap:5px;">
@@ -251,7 +269,7 @@
     </div>
   </div>
 
-  <div id="hamburgerDropdown" style="display:none; background:#1f2937; position:absolute; right:10px; top:80px; z-index:10001; border-radius:12px; padding:15px; box-shadow:0 10px 25px rgba(0,0,0,0.5), 0 0 15px rgba(245, 158, 11, 0.1); border:1px solid #374151; min-width:180px; animation: slideIn 0.3s ease-out;">
+  <div id="hamburgerDropdown" style="display:none; background:#1f2937; position:absolute; right:10px; top:80px; z-index:10001; border-radius:12px; padding:15px; box-shadow:0 10px 25px rgba(0,0,0,0.5), 0 0 15px rgba(239, 68, 68, 0.1); border:1px solid #374151; min-width:180px; animation: slideIn 0.3s ease-out;">
       <style>
         @keyframes slideIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
       </style>
@@ -437,11 +455,11 @@
     <div class="multiplier-display" id="multiplier">1.00x</div>
     <div class="flew-away-text" id="flewAwayText">FLEW AWAY!</div>
     
-    <div id="countdownDisplay" style="display:none; text-align:center; position:absolute; z-index:4;">
-      <div style="color:#ef4444; font-size:12px; font-weight:bold; letter-spacing:2px; margin-bottom:5px;">NEXT ROUND IN</div>
-      <div id="countdownTimer" style="font-size:64px; font-weight:normal; color:white;">18</div>
-      <div style="width:200px; height:4px; background:rgba(255,255,255,0.2); border-radius:2px; margin:0 auto; overflow:hidden;">
-        <div style="width:100%; height:100%; background:#ef4444; transition: width 1s linear;" id="nextRoundFill"></div>
+    <div id="countdownDisplay" style="display:none; text-align:center; position:absolute; z-index:4; background: rgba(0,0,0,0.6); padding: 20px; border-radius: 12px; border: 1px solid #1f2937; box-shadow: 0 4px 15px rgba(0,0,0,0.5);">
+      <div style="color:#ef4444; font-size:14px; font-weight:bold; letter-spacing:3px; margin-bottom:10px; text-transform: uppercase;">Next Round In</div>
+      <div id="countdownTimer" style="font-size:72px; font-weight:bold; color:white; text-shadow: 0 2px 10px rgba(0,0,0,0.5);">18</div>
+      <div style="width:250px; height:6px; background:rgba(255,255,255,0.1); border-radius:3px; margin:10px auto 0; overflow:hidden;">
+        <div style="width:100%; height:100%; background: linear-gradient(90deg, #ef4444, #f87171); transition: width 1s linear; box-shadow: 0 0 10px rgba(239,68,68,0.5);" id="nextRoundFill"></div>
       </div>
     </div>
     <svg id="trailSvg" style="position:absolute; top:0; left:0; width:100%; height:100%; z-index:1; display:none;" preserveAspectRatio="none">
@@ -960,7 +978,7 @@
       <div class="error-msg" id="withdrawError"></div>
       <div class="success-msg" id="withdrawSuccess"></div>
       <div class="spinner" id="withdrawSpinner"></div>
-      <button class="btn-submit" id="submitWithdrawBtn" style="background:#f59e0b;" onclick="submitWithdraw()">Withdraw</button>
+      <button class="btn-submit" id="submitWithdrawBtn" style="background:#ef4444;" onclick="submitWithdraw()">Withdraw</button>
     </div>
   </div>
 
@@ -1008,7 +1026,7 @@
           <div class="support-icon" style="background:#3b82f6;"><svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg></div>
           <div class="support-icon" style="background:#ef4444;"><svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg></div>
           <div class="support-icon" style="background:#22c55e;"><svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M12 2C6.48 2 2 6.48 2 12c0 2.17.7 4.19 1.94 5.86L3 22l4.14-1.06C8.73 21.61 10.3 22 12 22c5.52 0 10-4.48 10-10S17.52 2 12 2z"/></svg></div>
-          <div class="support-icon" style="background:#f97316;"><svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg></div>
+          <div class="support-icon" style="background:#ef4444;"><svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg></div>
         </div>
       </div>
     </div>
@@ -1093,7 +1111,7 @@
           <div style="font-size: 10px; color: #9ca3af;">ACTIVE</div>
         </div>
         <div style="background: #1f2937; padding: 10px; border-radius: 8px;">
-          <div style="font-size: 18px; font-weight: bold; color: #f59e0b;" id="refDeposits">0</div>
+          <div style="font-size: 18px; font-weight: bold; color: #ef4444;" id="refDeposits">0</div>
           <div style="font-size: 10px; color: #9ca3af;">DEPOSITS (KSH)</div>
         </div>
       </div>
@@ -1265,7 +1283,7 @@
               </tr></thead><tbody>` + 
               data.transactions.map(t => `
                 <tr style="border-bottom:1px solid #1f2937;">
-                  <td style="padding:8px; text-transform:capitalize; color:${t.type==='deposit'?'#22c55e':'#f59e0b'};">${t.type}</td>
+                  <td style="padding:8px; text-transform:capitalize; color:${t.type==='deposit'?'#22c55e':'#ef4444'};">${t.type}</td>
                   <td style="padding:8px;">KSH ${parseFloat(t.amount).toFixed(2)}</td>
                   <td style="padding:8px;">${t.status}</td>
                   <td style="padding:8px;">${new Date(t.created_at).toLocaleString()}</td>
@@ -1880,9 +1898,9 @@
              speed = (w - 80) / Math.pow(maxT, 1.05);
         }
         
-        let maxY = (maxM - 1) * verticalScale;
-        if (maxY > h - 60) {
-             verticalScale = (h - 60) / (maxM - 1);
+        let maxYLimit = (maxM - 1) * verticalScale;
+        if (maxYLimit > h - 80) {
+             verticalScale = (h - 80) / (maxM - 1);
         }
         
         planePoints = [];
@@ -1896,6 +1914,10 @@
         
         let currentX = startX + speed * Math.pow(t, 1.05);
         let currentY = startY - (visualM - 1) * verticalScale + hoverY;
+        
+        // Final safety cap to ensure it never reaches the very top
+        if (currentY < 60) currentY = 60;
+        
         planePoints.push({x: currentX, y: currentY});
         
         // Calculate smooth derivative for stable angle without shaking
@@ -1978,6 +2000,11 @@
                    progressFill.style.transition = 'none';
                    progressFill.style.width = ((data.time / 6) * 100) + '%';
                 }
+                if (data.time <= 1 && (betStatus === 'PLACED' || betStatus === 'PLACED_WAITING')) {
+                   updateBetBtnDisabled(true);
+                   betBtn.innerText = 'LOCKED';
+                   betBtn.style.background = '#6b7280';
+                }
              }
 
              if (data.time === 5 && betStatus === 'NONE') {
@@ -2007,6 +2034,7 @@
                 const box = document.getElementById('aviatorBox');
                 w = box.clientWidth || 300;
                 h = box.clientHeight || 250;
+                const maxY = h * 0.25; // Limit height to 25% from top
                 pathD = `M 20 ${h - 20}`;
                 
                 const countdownContainer = document.getElementById('countdownDisplay');
@@ -2163,13 +2191,18 @@
       const amt = parseFloat(document.getElementById('betAmount').value);
 
       if (gameState === 'WAITING') {
+        const timeText = document.getElementById('countdownTimer').innerText;
+        const timeVal = parseInt(timeText);
+        
         if (betStatus === 'NONE') {
           if(amt < 1) { alert('Min bet is 1'); return; }
           activeBetAmount = amt;
           placeServerBet(amt);
         } else if (betStatus === 'PLACED') {
+          if (timeVal <= 1) return; // Locked
           cancelServerBet();
         } else if (betStatus === 'PLACED_WAITING') {
+          if (timeVal <= 1) return; // Locked
           cancelServerBet();
         }
       } else if (gameState === 'RUNNING' || gameState === 'CRASHED') {
@@ -2427,7 +2460,7 @@
                  <td>KSH ${parseFloat(u.balance).toFixed(2)}</td>
                  <td>
                    <button onclick="adminUserAction('adjust', ${u.id})" style="padding:2px 5px; font-size:10px; background:#eab308; border:none; cursor:pointer;">±Bal</button>
-                   <button onclick="adminUserAction('${u.status==='active'?'suspend':'activate'}', ${u.id})" style="padding:2px 5px; font-size:10px; background:#f97316; border:none; cursor:pointer;">${u.status==='active'?'Susp':'Act'}</button>
+                   <button onclick="adminUserAction('${u.status==='active'?'suspend':'activate'}', ${u.id})" style="padding:2px 5px; font-size:10px; background:#ef4444; border:none; cursor:pointer;">${u.status==='active'?'Susp':'Act'}</button>
                    <button onclick="adminUserAction('delete', ${u.id})" style="padding:2px 5px; font-size:10px; background:#ef4444; border:none; cursor:pointer;">Del</button>
                  </td>
                </tr>`;
